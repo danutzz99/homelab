@@ -1,0 +1,28 @@
+services:
+  proxy:
+    image: jc21/nginx-proxy-manager:latest
+    container_name: nginx-proxy-manager
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+      - "8443:443"
+      - "8181:81"
+    volumes:
+      - /mnt/mainpool/configs/nginx-proxy-manager/data:/data
+      - /mnt/mainpool/configs/nginx-proxy-manager/letsencrypt:/etc/letsencrypt
+
+  ddns:
+    image: favonia/cloudflare-ddns:latest
+    container_name: cloudflare-ddns
+    restart: unless-stopped
+    user: "568:568"
+    read_only: true
+    cap_drop: [all]
+    security_opt: [no-new-privileges:true]
+    environment:
+      - CLOUDFLARE_API_TOKEN=
+      - DOMAINS=
+      - PROXIED=true
+      - IP6_PROVIDER=none
+
+volumes: {}
