@@ -1,0 +1,80 @@
+{
+  "name": "Discord Classifier Review",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "review-trigger",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        260,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "language": "javaScript",
+        "jsCode": "const item = $json; const labels = Array.isArray(item.labels) ? item.labels.map(String) : []; const removeLabels = Array.isArray(item.removeLabels) ? item.removeLabels.map(String) : []; const normalized = labels.map(label => label.toLowerCase()); const reviewNeeded = normalized.some(label => label.includes('review-needed')); const primaryCategories = labels.filter(label => /^Category\\//i.test(label)); const hasPrimaryConflict = primaryCategories.length > 1; const shouldNotify = reviewNeeded || hasPrimaryConflict || removeLabels.length > 0 || item.debug?.forceManualReview; if (!shouldNotify) return []; const subject = String(item.subject || '(no subject)'); const from = String(item.from || 'Unknown sender'); const reason = item.debug?.reason || (reviewNeeded ? '[review-needed]' : hasPrimaryConflict ? 'primary-category-conflict' : removeLabels.length > 0 ? 'remove-labels-present' : 'manual-review'); const color = reviewNeeded ? 16763904 : hasPrimaryConflict ? 15105570 : 5793266; return [{ json: { discord: { content: `Classifier review: ${subject.slice(0, 80)}`, embeds: [{ title: subject.slice(0, 256), description: from.slice(0, 400), color, fields: [{ name: 'Labels', value: labels.join(', ') || 'n/a' }, { name: 'Remove Labels', value: removeLabels.join(', ') || 'none' }, { name: 'Message ID', value: String(item.messageId || item.id || 'n/a'), inline: true }, { name: 'Reason', value: reason, inline: true }], footer: { text: 'Discord Classifier Review' }, timestamp: new Date().toISOString() }] } } }];"
+      },
+      "id": "review-format",
+      "name": "Filter And Format Review",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        540,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.DISCORD_CLASSIFIER_REVIEW_WEBHOOK || $env.DISCORD_REVIEW_WEBHOOK || $env.DISCORD_CLASSIFIER_REVIEW_WEBHOOK_URL || $env.DISCORD_WEBHOOK_URL || $env.DISCORD_WEBHOOK}}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{$json.discord}}",
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "review-send",
+      "name": "Send Review To Discord",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        820,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Filter And Format Review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter And Format Review": {
+      "main": [
+        [
+          {
+            "node": "Send Review To Discord",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "discord-classifier-review-doc"
+}

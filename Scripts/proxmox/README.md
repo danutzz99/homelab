@@ -1,53 +1,53 @@
 # Proxmox Host Scripts
 
-Scripts that run directly on the Proxmox VE host (pve) for system notifications and power management.
+Scripts that run directly on the Proxmox host for lifecycle notifications and power management.
 
 ## Components
 
 | Script | Trigger | Purpose |
 |--------|---------|---------|
-| notify-boot.sh | System boot | Sends notification when Proxmox comes online |
-| notify-shutdown.sh | System shutdown | Sends notification before Proxmox goes offline |
-| daily_shutdown.sh | Cron (02:00) | Conditional shutdown - checks Pi availability first |
+| `notify-boot.sh` | System boot | Sends a notification when Proxmox comes online |
+| `notify-shutdown.sh` | System shutdown | Sends a notification before Proxmox goes offline |
+| `daily_shutdown.sh` | Cron at 02:00 | Conditional shutdown that checks Raspberry Pi availability first |
 
 ## Directory Structure
 
-```
+```text
 proxmox/
-├── scripts/
-│   ├── notify-boot.sh       # Boot notification script
-│   ├── notify-shutdown.sh   # Shutdown notification script
-│   └── daily_shutdown.sh    # Conditional shutdown script
-└── systemd/
-    ├── proxmox-boot-notify.service
-    └── proxmox-shutdown-notify.service
+|-- scripts/
+|   |-- notify-boot.sh       # Boot notification script
+|   |-- notify-shutdown.sh   # Shutdown notification script
+|   `-- daily_shutdown.sh    # Conditional shutdown script
+`-- systemd/
+    |-- proxmox-boot-notify.service
+    `-- proxmox-shutdown-notify.service
 ```
 
-## Conditional Shutdown (daily_shutdown.sh)
+## Conditional Shutdown
 
-**Location**: `/usr/local/sbin/daily_shutdown.sh`
-**Cron**: `0 2 * * *` (every day at 02:00)
+Location: `/usr/local/sbin/daily_shutdown.sh`
+Cron: `0 2 * * *`
 
 ### Logic Flow
 
-```
-02:00 AM → Script runs
-    │
-    ├── Is skip flag set? (/var/run/skip_shutdown_today)
-    │   └── Yes → Skip shutdown, remove flag, exit
-    │
-    ├── Is Pi reachable?
-    │   ├── Yes → Proceed with shutdown
-    │   └── No → ABORT (server stays on)
-    │
-    └── If Pi unreachable, attempt SSH reboot (best effort)
+```text
+02:00 -> Script starts
+  |
+  |-- Is the skip flag present? (/var/run/skip_shutdown_today)
+  |     `-- Yes -> Skip shutdown, remove flag, exit
+  |
+  |-- Is the Raspberry Pi reachable?
+  |     |-- Yes -> Proceed with shutdown
+  |     `-- No  -> Abort shutdown and attempt recovery
+  |
+  `-- If the Pi is unreachable, attempt an SSH reboot as a best-effort recovery step
 ```
 
 ### Why This Exists
 
-The Raspberry Pi sends Wake-on-LAN to start the server. If the Pi is offline when the server shuts down, it cannot be woken remotely. This script prevents that scenario.
+The Raspberry Pi is responsible for Wake-on-LAN automation. If the Pi is offline when the server shuts down, remote wake-up is no longer available. This guard prevents that scenario.
 
-### Script Template
+### Script Example
 
 ```bash
 #!/bin/bash
@@ -56,20 +56,18 @@ LOG="/var/log/daily_shutdown.log"
 PI_IP="<PI_IP>"
 PI_USER="<PI_USER>"
 
-# 1. Check Manual Flag (set by !notnow command)
 if [ -f "$FLAG" ]; then
   echo "$(date '+%F %T') - Shutdown skipped due to flag $FLAG" >> "$LOG"
   rm -f "$FLAG"
   exit 0
 fi
 
-# 2. Check Raspberry Pi Availability
-if ping -c 3 $PI_IP > /dev/null 2>&1; then
-  echo "$(date '+%F %T') - Pi ($PI_IP) is ONLINE. Proceeding with shutdown." >> "$LOG"
+if ping -c 3 "$PI_IP" > /dev/null 2>&1; then
+  echo "$(date '+%F %T') - Pi ($PI_IP) is online. Proceeding with shutdown." >> "$LOG"
   /sbin/shutdown -h now
 else
-  echo "$(date '+%F %T') - CRITICAL: Pi ($PI_IP) is UNREACHABLE. Aborting shutdown." >> "$LOG"
-  ssh -o ConnectTimeout=10 -o StrictHostKeyChecking=no $PI_USER@$PI_IP "sudo reboot" >> "$LOG" 2>&1
+  echo "$(date '+%F %T') - Pi ($PI_IP) is unreachable. Aborting shutdown." >> "$LOG"
+  ssh -o ConnectTimeout=10 -o StrictHostKeyChecking=no "$PI_USER@$PI_IP" "sudo reboot" >> "$LOG" 2>&1
   exit 1
 fi
 ```
@@ -91,12 +89,10 @@ fi
 
 ## Notification Flow
 
-```
-System Boot
-    ↓
-30s delay (network stabilization)
-    ↓
-Try n8n webhook → If fail → Discord fallback
-    ↓
-Notification sent
+```text
+System boot
+  -> short startup delay
+  -> try automation endpoint
+  -> if that fails, use the fallback Discord alert path
+  -> notification sent
 ```

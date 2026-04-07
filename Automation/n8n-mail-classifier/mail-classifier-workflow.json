@@ -1,0 +1,388 @@
+{
+  "name": "Mail Classifier Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 3,
+              "triggerAtMinute": 1
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -860,
+        180
+      ],
+      "id": "schedule-trigger",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "<manual-trigger-path>",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -860,
+        340
+      ],
+      "id": "manual-webhook",
+      "name": "Manual Trigger Webhook"
+    },
+    {
+      "parameters": {
+        "resource": "label",
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -620,
+        100
+      ],
+      "id": "get-labels",
+      "name": "Get many labels",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "<gmail-credential-id>",
+          "name": "<gmail-credential-name>"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const labelMap = {}; for (const item of $input.all()) { labelMap[item.json.name] = item.json.id; } return [{ json: { labelMap } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -380,
+        100
+      ],
+      "id": "build-label-map",
+      "name": "Build labelMap"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "filters": {
+          "includeSpamTrash": true,
+          "labelIds": [],
+          "q": "-label:[review-needed] -label:Category/Marketing -label:Category/Orders -label:Category/Security -label:Category/Invoices -label:Category/Payments -label:Category/Medical -label:Category/Transport -label:Category/Offers -label:Category/Finance -label:Category/Jobs"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -380,
+        290
+      ],
+      "id": "get-messages",
+      "name": "Get candidate messages",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "<gmail-credential-id>",
+          "name": "<gmail-credential-name>"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -160,
+        190
+      ],
+      "id": "merge",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "options": {
+          "reset": false
+        }
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        60,
+        190
+      ],
+      "id": "loop",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "/* Replace this stub with the logic from mail-classifier-logic.js and then adapt provider patterns and label names for your environment. */ return { messageId: $json.id, labels: [], removeLabels: [], from: $json.From, subject: $json.Subject };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        280,
+        120
+      ],
+      "id": "classifier",
+      "name": "Classifier Logic"
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $json.messageId }}",
+        "labelIds": "={{ $json.labels }}"
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        640,
+        190
+      ],
+      "id": "add-labels",
+      "name": "Add labels to message",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "<gmail-credential-id>",
+          "name": "<gmail-credential-name>"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const item = $input.first().json; const removeLabels = Array.isArray(item.removeLabels) ? item.removeLabels.filter(Boolean) : []; if (removeLabels.length === 0) return []; return [{ json: { ...item, removeLabels } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        500,
+        320
+      ],
+      "id": "prepare-remove",
+      "name": "Prepare Remove Labels"
+    },
+    {
+      "parameters": {
+        "operation": "removeLabels",
+        "messageId": "={{ $json.messageId }}",
+        "labelIds": "={{ $json.removeLabels }}"
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        760,
+        320
+      ],
+      "id": "remove-labels",
+      "name": "Remove labels from message",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "<gmail-credential-id>",
+          "name": "<gmail-credential-name>"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const now = new Date().toISOString(); return [{ json: { discord: { content: 'Mail workflow completed successfully.', embeds: [{ title: 'Mail workflow completed', color: 5763719, fields: [{ name: 'Workflow', value: 'Mail Classifier Workflow', inline: true }, { name: 'Status', value: 'success', inline: true }, { name: 'Finished At', value: now, inline: true }], footer: { text: 'n8n Mail Classifier' }, timestamp: now }] } } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        280,
+        450
+      ],
+      "id": "format-success",
+      "name": "Format Success Notification"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.DISCORD_WEBHOOK_URL || $env.DISCORD_WEBHOOK}}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{$json.discord}}",
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        550,
+        450
+      ],
+      "id": "send-success",
+      "name": "Send Success To Discord"
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get many labels",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get candidate messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Manual Trigger Webhook": {
+      "main": [
+        [
+          {
+            "node": "Get many labels",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get candidate messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many labels": {
+      "main": [
+        [
+          {
+            "node": "Build labelMap",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build labelMap": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get candidate messages": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Format Success Notification",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Classifier Logic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classifier Logic": {
+      "main": [
+        [
+          {
+            "node": "Prepare Remove Labels",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Add labels to message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Remove Labels": {
+      "main": [
+        [
+          {
+            "node": "Remove labels from message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add labels to message": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Success Notification": {
+      "main": [
+        [
+          {
+            "node": "Send Success To Discord",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timeSavedMode": "fixed",
+    "saveDataErrorExecution": "none",
+    "saveDataSuccessExecution": "none",
+    "saveExecutionProgress": false,
+    "saveManualExecutions": false
+  },
+  "versionId": "mail-classifier-workflow-doc"
+}
