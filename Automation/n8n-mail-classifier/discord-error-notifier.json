@@ -1,0 +1,80 @@
+{
+  "name": "Discord Error Notifier",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "error-trigger",
+      "name": "Error Trigger",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        260,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const input = $input.first()?.json ?? {}; const workflowName = input.workflow?.name || input.workflowName || 'Unknown workflow'; const executionId = input.execution?.id || input.executionId || 'n/a'; const failedNode = input.lastNodeExecuted || input.node?.name || input.nodeName || 'n/a'; const message = input.error?.message || input.message || input.error?.description || 'Unknown error'; const stack = input.error?.stack || input.stack || ''; const combined = `${message}\\n${stack}`; const severity = /(429|rate\\s*limit|quota|timeout|econn|network|discord)/i.test(combined) ? 'warning' : 'error'; const color = severity === 'warning' ? 16763904 : 15548997; return [{ json: { discord: { content: `n8n ${severity.toUpperCase()}: ${String(workflowName).slice(0, 120)}`, embeds: [{ title: `Workflow failed: ${String(workflowName).slice(0, 200)}`, color, fields: [{ name: 'Execution', value: String(executionId), inline: true }, { name: 'Node', value: String(failedNode).slice(0, 200), inline: true }, { name: 'Severity', value: severity, inline: true }, { name: 'Error', value: String(message).slice(0, 1000) || 'Unknown error' }], footer: { text: 'Discord Error Notifier' }, timestamp: new Date().toISOString() }] } } }];"
+      },
+      "id": "error-format",
+      "name": "Build Discord Alert",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        520,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.DISCORD_ERROR_WEBHOOK || $env.DISCORD_ALERT_WEBHOOK || $env.DISCORD_WEBHOOK_URL || $env.DISCORD_WEBHOOK}}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{$json.discord}}",
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "error-send",
+      "name": "Send To Discord",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        780,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Build Discord Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Discord Alert": {
+      "main": [
+        [
+          {
+            "node": "Send To Discord",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "discord-error-notifier-doc"
+}

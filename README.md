@@ -1,50 +1,48 @@
-# 🏰 Homelab Documentation
+# Homelab Documentation
 
-<p align="center">
-  <img src="https://img.shields.io/badge/Proxmox-LXC--Docker-orange?style=flat-square" alt="Environment">
-  <img src="https://img.shields.io/badge/Secrets-Vault-green?style=flat-square" alt="Security">
-</p>
-
-## 🏗️ System Architecture
+## System Architecture
 
 | Node | Component | Role |
 |------|-----------|------|
 | **Host** | Proxmox VE | Hypervisor |
-| **NAS VM** | TrueNAS Scale | Storage & Docker Host |
-| **Media VM** | Plex | Streaming (GPU) |
-| **Auth LXC** | Vault, n8n, Tautulli | Automation |
-| **Client LXC** | Nextcloud | Secure Cloud & Share |
+| **NAS VM** | TrueNAS Scale | Storage and Docker host |
+| **Media VM** | Plex | Media streaming |
+| **Auth LXC** | Vault, n8n, Tautulli | Automation services |
+| **Client LXC** | Nextcloud | Private cloud and file sharing |
 
-## 📂 Repository Structure
+## Repository Structure
 
 - **[TrueNas/](TrueNas)**: Media stack configurations
-- **[Portainer/](Portainer)**: Stack templates
-- **[Security/](Security)**: Vault documentation
-- **[Infrastructure/](Infrastructure)**: Host settings
-- **[Automation/](Automation)**: CI/CD & pipelines
-- **[Scripts/](Scripts)**: System automation scripts
+- **[Portainer/](Portainer)**: Stack definitions
+- **[Security/](Security)**: Vault and security documentation
+- **[Infrastructure/](Infrastructure)**: Host settings and platform notes
+- **[Automation/](Automation)**: CI/CD, workflow definitions, and n8n notes
+- **[Scripts/](Scripts)**: Operational automation scripts
 
-## 🛡️ Secrets
+## Secrets
 
-All credentials stored in **HashiCorp Vault**. No sensitive data in this repository.
+Credentials are injected at deployment time and are not stored in this repository.
 
-## ☁️ Nextcloud Deployment (Latest Addition)
-**Deployed as LXC on Proxmox Host**
+## Nextcloud Deployment
 
-### 1. Storage Strategy (2 HDDs)
-- **Physical Layer:** 2 Physical HDDs (Total 1.6TB) connected to Proxmox Host.
-- **Volume Management:** configured as LVM Volume Group.
-- **Passthrough:** Mounted on Host and passed to LXC via Bind Mount.
-- **Benefit:** Direct hardware speed with container flexibility.
+Deployed as an LXC on the Proxmox host.
 
-### 2. Shared Environment (Team Folders)
-- Implemented **"Group Folders"** app to create a true shared environment.
-- **Root Folder**: A root-level folder visible to all family users.
-- **Permissions:** Full read/write/delete/share access for the `admin` group.
-- **Result:** Bidirectional file visibility without quota consumption or complex sharing links.
+### Storage Strategy
 
-### 3. Security Hardening
-- **Access:** Exposed via Cloudflare Tunnel (safe mobile access) & Nginx Proxy Manager.
-- **Protection:** Fail2Ban (Jail verified), Brute Force Protection enabled.
-- **Monitoring:** Integrated custom Discord bot for real-time intrusion alerts.
-- **Auth:** Strict Password Policy + 2FA enforced.
+- Two physical HDDs provide the storage layer.
+- Storage is grouped through LVM on the host.
+- The mounted storage is passed into the LXC through bind mounts.
+- This keeps direct disk performance while preserving container flexibility.
+
+### Shared Environment
+
+- The Group Folders app provides a shared workspace for family users.
+- A root-level shared folder is visible to the intended user group.
+- Read, write, delete, and share permissions are managed through the admin group.
+
+### Security Hardening
+
+- External access is routed through a tunnel and reverse proxy.
+- Brute-force protection and jail-based blocking are enabled.
+- Operational alerts are sent through the Discord bot.
+- Strong passwords and two-factor authentication are enforced.

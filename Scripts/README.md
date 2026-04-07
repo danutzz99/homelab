@@ -1,59 +1,66 @@
 # Scripts & Automation
 
-This directory documents the automation scripts deployed across the homelab infrastructure.
+This directory documents the operational scripts used across the homelab.
 
-## 📁 Structure
+## Structure
 
-```
+```text
 Scripts/
-├── proxmox/           # Proxmox host scripts
-│   ├── notify-boot.sh
-│   └── notify-shutdown.sh
-├── lxc-automation/    # Automation LXC scripts
-├── raspberry-pi/      # Raspberry Pi Service scripts
-    ├── pi_server.py
-    └── gogu_bot.py
+|-- proxmox/           # Proxmox host scripts
+|   |-- notify-boot.sh
+|   `-- notify-shutdown.sh
+|-- lxc-automation/    # Automation LXC scripts
+`-- raspberry-pi/      # Raspberry Pi service scripts
+    |-- pi_server.py
+    `-- gogu_bot.py
 ```
 
 ## Proxmox Scripts
 
 | Script | Trigger | Purpose |
 |--------|---------|---------|
-| `notify-boot.sh` | systemd on boot | Discord notification when Proxmox boots |
-| `notify-shutdown.sh` | systemd on shutdown | Discord notification when Proxmox shuts down |
+| `notify-boot.sh` | systemd on boot | Sends a notification when Proxmox comes online |
+| `notify-shutdown.sh` | systemd on shutdown | Sends a notification before Proxmox goes offline |
 
 ## Automation LXC Scripts
 
 ### `vault-unseal.sh`
-> **Note:** The content of this script has been redacted for security purposes.
-> **Purpose:** Automates the unsealing of HashiCorp Vault after a reboot. In a production environment, this logic handles the secure retrieval of unseal keys from a trusted external source or manual input.
+
+Automates the Vault recovery flow after a reboot.
+
+In practice, this script coordinates the unseal sequence and retrieves the required values from the automation environment.
 
 ### `wait-for-nfs.sh`
-> **Note:** The content of this script has been redacted for security purposes.
-> **Purpose:** Ensures that NFS mounts from the NAS are fully available before starting dependent services (like Docker containers).
+
+Ensures that NFS mounts from the NAS are fully available before starting dependent services such as Docker containers and scheduled jobs.
 
 ## Proxmox Host Scripts
 
-### `notify-boot.sh` & `notify-shutdown.sh`
-> **Note:** The content of these scripts have been redacted for security purposes.
-> **Purpose:** Sends webhook notifications to Discord upon system startup and shutdown events.
+### `notify-boot.sh` and `notify-shutdown.sh`
+
+These scripts send lifecycle notifications when the Proxmox host starts or stops.
+
+The notification flow uses a primary automation endpoint with a fallback alert path so infrastructure events remain visible during maintenance windows.
 
 ## Raspberry Pi Scripts
 
 ### `gogu_bot.py`
-> **Note:** The content of this script has been redacted for security purposes.
-> **Purpose:** A Python-based Discord bot that manages Wake-on-LAN and system status monitoring. Contains sensitive API endpoints and tokens in the live version found in our private repository.
+
+A Python-based Discord bot that manages Wake-on-LAN, health checks, and operational commands for the homelab.
+
+It acts as the operator-facing interface for manual actions such as power control, service checks, and selected automation triggers.
 
 | Script | Trigger | Purpose |
 |--------|---------|---------|
-| `pi_server.py` | systemd service | HTTP API for health checks and WOL |
+| `pi_server.py` | systemd service | HTTP API for health checks and Wake-on-LAN |
 | `gogu_bot.py` | systemd service | Discord bot for homelab control |
 
 ## Secrets
 
-All scripts use environment variables for sensitive data:
-- `${DISCORD_WEBHOOK}` - Discord webhook URL
-- `${VAULT_UNSEAL_KEY}` - Vault unseal key
-- `${WEBHOOK_URL}` - n8n webhook endpoints
+The live services use environment variables for deployment-specific values such as:
 
-Secrets are stored in **HashiCorp Vault** and injected during deployment.
+- `${DISCORD_WEBHOOK}`
+- `${VAULT_UNSEAL_KEY}`
+- `${WEBHOOK_URL}`
+
+Sensitive values are injected at deployment time rather than stored in this repository.

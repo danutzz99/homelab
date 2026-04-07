@@ -1,0 +1,195 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2120" height="860" viewBox="0 0 2120 860" role="img" aria-labelledby="title desc">
+  <title id="title">Mail Classifier Workflow Canvas</title>
+  <desc id="desc">A static workflow canvas styled after an n8n editor layout for the mail classifier workflow.</desc>
+  <defs>
+    <style>
+      .bg { fill: #f8fafc; }
+      .grid { stroke: #e2e8f0; stroke-width: 1; }
+      .lane { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.5; rx: 18; ry: 18; }
+      .lane-title { fill: #0f172a; font: 700 22px Arial, sans-serif; }
+      .lane-subtitle { fill: #475569; font: 400 12px Arial, sans-serif; }
+      .edge { stroke: #64748b; stroke-width: 4; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+      .node { fill: #ffffff; stroke: #cbd5e1; stroke-width: 2; rx: 18; ry: 18; }
+      .node-title { fill: #0f172a; font: 700 16px Arial, sans-serif; }
+      .node-sub { fill: #475569; font: 400 12px Arial, sans-serif; }
+      .trigger-top { fill: #22c55e; }
+      .gmail-top { fill: #ef4444; }
+      .code-top { fill: #f59e0b; }
+      .merge-top { fill: #8b5cf6; }
+      .loop-top { fill: #3b82f6; }
+      .http-top { fill: #06b6d4; }
+      .badge { fill: #e2e8f0; }
+      .badge-text { fill: #334155; font: 700 11px Arial, sans-serif; }
+      .legend-title { fill: #0f172a; font: 700 14px Arial, sans-serif; }
+      .legend-text { fill: #475569; font: 400 12px Arial, sans-serif; }
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b" />
+    </marker>
+  </defs>
+
+  <rect class="bg" width="2120" height="860" />
+
+  <g opacity="0.55">
+    <path class="grid" d="M0 60 H2120 M0 160 H2120 M0 260 H2120 M0 360 H2120 M0 460 H2120 M0 560 H2120 M0 660 H2120 M0 760 H2120" />
+    <path class="grid" d="M100 0 V860 M220 0 V860 M340 0 V860 M460 0 V860 M580 0 V860 M700 0 V860 M820 0 V860 M940 0 V860 M1060 0 V860 M1180 0 V860 M1300 0 V860 M1420 0 V860 M1540 0 V860 M1660 0 V860 M1780 0 V860 M1900 0 V860 M2020 0 V860" />
+  </g>
+
+  <rect class="lane" x="20" y="24" width="300" height="760" />
+  <rect class="lane" x="340" y="24" width="500" height="760" />
+  <rect class="lane" x="860" y="24" width="900" height="760" />
+  <rect class="lane" x="1780" y="24" width="320" height="760" />
+
+  <text class="lane-title" x="44" y="62">Entry Points</text>
+  <text class="lane-subtitle" x="44" y="84">Timer and manual start</text>
+
+  <text class="lane-title" x="364" y="62">Inputs</text>
+  <text class="lane-subtitle" x="364" y="84">Load labels and message batch</text>
+
+  <text class="lane-title" x="884" y="62">Classification Flow</text>
+  <text class="lane-subtitle" x="884" y="84">Label selection and cleanup</text>
+
+  <text class="lane-title" x="1804" y="62">Completion</text>
+  <text class="lane-subtitle" x="1804" y="84">Final status message</text>
+
+  <g transform="translate(70,170)">
+    <rect class="node" width="190" height="84" />
+    <rect class="trigger-top" width="190" height="12" rx="18" ry="18" />
+    <text class="node-title" x="18" y="40">Schedule Trigger</text>
+    <text class="node-sub" x="18" y="60">3-hour timer at :01</text>
+  </g>
+
+  <g transform="translate(70,390)">
+    <rect class="node" width="190" height="84" />
+    <rect class="trigger-top" width="190" height="12" rx="18" ry="18" />
+    <text class="node-title" x="18" y="40">Manual Webhook</text>
+    <text class="node-sub" x="18" y="60">Manual POST start</text>
+  </g>
+
+  <g transform="translate(390,120)">
+    <rect class="node" width="200" height="84" />
+    <rect class="gmail-top" width="200" height="12" rx="18" ry="18" />
+    <text class="node-title" x="18" y="40">Get many labels</text>
+    <text class="node-sub" x="18" y="60">Load Gmail labels</text>
+  </g>
+
+  <g transform="translate(640,120)">
+    <rect class="node" width="160" height="84" />
+    <rect class="code-top" width="160" height="12" rx="18" ry="18" />
+    <text class="node-title" x="18" y="40">Build label map</text>
+    <text class="node-sub" x="18" y="60">Create label lookup</text>
+  </g>
+
+  <g transform="translate(390,360)">
+    <rect class="node" width="200" height="84" />
+    <rect class="gmail-top" width="200" height="12" rx="18" ry="18" />
+    <text class="node-title" x="18" y="40">Get candidate messages</text>
+    <text class="node-sub" x="18" y="60">Load message batch</text>
+  </g>
+
+  <g transform="translate(620,240)">
+    <rect class="node" width="200" height="84" />
+    <rect class="merge-top" width="200" height="12" rx="18" ry="18" />
+    <text class="node-title" x="18" y="40">Merge</text>
+    <text class="node-sub" x="18" y="60">Combine mail + label map</text>
+  </g>
+
+  <g transform="translate(930,240)">
+    <rect class="node" width="200" height="84" />
+    <rect class="loop-top" width="200" height="12" rx="18" ry="18" />
+    <text class="node-title" x="18" y="40">Loop Over Items</text>
+    <text class="node-sub" x="18" y="60">One message per pass</text>
+  </g>
+
+  <g transform="translate(1230,120)">
+    <rect class="node" width="250" height="84" />
+    <rect class="code-top" width="250" height="12" rx="18" ry="18" />
+    <text class="node-title" x="18" y="40">Classifier Logic</text>
+    <text class="node-sub" x="18" y="60">Select labels + cleanup</text>
+  </g>
+
+  <g transform="translate(1530,120)">
+    <rect class="node" width="180" height="84" />
+    <rect class="gmail-top" width="180" height="12" rx="18" ry="18" />
+    <text class="node-title" x="18" y="40">Add labels</text>
+    <text class="node-sub" x="18" y="60">Apply target labels</text>
+  </g>
+
+  <g transform="translate(1230,380)">
+    <rect class="node" width="250" height="84" />
+    <rect class="code-top" width="250" height="12" rx="18" ry="18" />
+    <text class="node-title" x="18" y="40">Prepare Remove Labels</text>
+    <text class="node-sub" x="18" y="60">Prepare cleanup list</text>
+  </g>
+
+  <g transform="translate(1530,380)">
+    <rect class="node" width="180" height="84" />
+    <rect class="gmail-top" width="180" height="12" rx="18" ry="18" />
+    <text class="node-title" x="18" y="40">Remove labels</text>
+    <text class="node-sub" x="18" y="60">Gmail cleanup</text>
+  </g>
+
+  <g transform="translate(1820,500)">
+    <rect class="node" width="220" height="84" />
+    <rect class="code-top" width="220" height="12" rx="18" ry="18" />
+    <text class="node-title" x="18" y="40">Format success</text>
+    <text class="node-sub" x="18" y="60">Compose run summary</text>
+  </g>
+
+  <g transform="translate(1820,640)">
+    <rect class="node" width="220" height="84" />
+    <rect class="http-top" width="220" height="12" rx="18" ry="18" />
+    <text class="node-title" x="18" y="40">Send success</text>
+    <text class="node-sub" x="18" y="60">Send Discord status</text>
+  </g>
+
+  <path class="edge" marker-end="url(#arrow)" d="M260 212 C320 212, 340 162, 390 162" />
+  <path class="edge" marker-end="url(#arrow)" d="M260 432 C320 432, 340 402, 390 402" />
+  <path class="edge" marker-end="url(#arrow)" d="M165 254 C165 320, 290 375, 390 402" />
+  <path class="edge" marker-end="url(#arrow)" d="M165 390 C165 290, 290 185, 390 162" />
+
+  <path class="edge" marker-end="url(#arrow)" d="M590 162 C610 162, 620 162, 640 162" />
+  <path class="edge" marker-end="url(#arrow)" d="M720 204 C720 220, 720 228, 720 240" />
+  <path class="edge" marker-end="url(#arrow)" d="M590 402 C620 402, 620 282, 620 282" />
+  <path class="edge" marker-end="url(#arrow)" d="M820 282 C860 282, 885 282, 930 282" />
+
+  <path class="edge" marker-end="url(#arrow)" d="M1130 282 C1180 282, 1185 162, 1230 162" />
+  <path class="edge" marker-end="url(#arrow)" d="M1480 162 C1500 162, 1510 162, 1530 162" />
+  <path class="edge" marker-end="url(#arrow)" d="M1355 204 C1355 260, 1355 320, 1355 380" />
+  <path class="edge" marker-end="url(#arrow)" d="M1480 422 C1500 422, 1510 422, 1530 422" />
+
+  <path class="edge" marker-end="url(#arrow)" d="M1620 204 C1710 204, 1760 80, 1100 80 C1025 80, 995 180, 1030 240" />
+  <path class="edge" marker-end="url(#arrow)" d="M1030 324 C1030 520, 1690 542, 1820 542" />
+  <path class="edge" marker-end="url(#arrow)" d="M1930 584 C1930 610, 1930 620, 1930 640" />
+
+  <text class="legend-title" x="54" y="726">Legend</text>
+
+  <g transform="translate(54,740)">
+    <rect class="badge" x="0" y="0" width="82" height="26" rx="13" ry="13" />
+    <rect class="badge" x="92" y="0" width="72" height="26" rx="13" ry="13" />
+    <rect class="badge" x="180" y="0" width="64" height="26" rx="13" ry="13" />
+    <rect class="badge" x="260" y="0" width="66" height="26" rx="13" ry="13" />
+    <rect class="badge" x="342" y="0" width="64" height="26" rx="13" ry="13" />
+    <rect class="badge" x="422" y="0" width="58" height="26" rx="13" ry="13" />
+
+    <circle class="trigger-top" cx="16" cy="13" r="6" />
+    <text class="badge-text" x="28" y="17">Trigger</text>
+
+    <circle class="gmail-top" cx="108" cy="13" r="6" />
+    <text class="badge-text" x="120" y="17">Gmail</text>
+
+    <circle class="code-top" cx="196" cy="13" r="6" />
+    <text class="badge-text" x="208" y="17">Code</text>
+
+    <circle class="merge-top" cx="276" cy="13" r="6" />
+    <text class="badge-text" x="288" y="17">Merge</text>
+
+    <circle class="loop-top" cx="358" cy="13" r="6" />
+    <text class="badge-text" x="370" y="17">Loop</text>
+
+    <circle class="http-top" cx="438" cy="13" r="6" />
+    <text class="badge-text" x="450" y="17">HTTP</text>
+  </g>
+
+  <text class="legend-text" x="560" y="757">Static canvas view from the documented workflow JSON.</text>
+</svg>
