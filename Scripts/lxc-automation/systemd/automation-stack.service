@@ -1,0 +1,17 @@
+[Unit]
+Description=Homelab Automation Stack
+Requires=docker.service
+After=docker.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=/opt/homelab/automation
+ExecStartPre=/opt/homelab/automation/wait-for-nfs.sh
+ExecStart=/usr/bin/docker compose -f /opt/homelab/automation/automation-stack.yaml up -d
+ExecStop=/usr/bin/docker compose -f /opt/homelab/automation/automation-stack.yaml down
+TimeoutStartSec=900
+
+[Install]
+WantedBy=multi-user.target

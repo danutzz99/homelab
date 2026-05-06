@@ -1,0 +1,15 @@
+[Unit]
+Description=Raspberry Pi Control API
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=homelab
+WorkingDirectory=/opt/homelab/raspberry-pi
+ExecStart=/usr/bin/python3 /opt/homelab/raspberry-pi/pi_server.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,19 @@
+[Unit]
+Description=Vault Recovery Helper
+After=docker.service automation-stack.service network-online.target
+Requires=docker.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStartPre=/bin/sleep 120
+ExecStart=/opt/homelab/automation/vault-unseal.sh
+StandardOutput=journal
+StandardError=journal
+Restart=on-failure
+RestartSec=30
+StartLimitIntervalSec=300
+StartLimitBurst=5
+
+[Install]
+WantedBy=multi-user.target

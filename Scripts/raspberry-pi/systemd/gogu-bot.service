@@ -1,0 +1,15 @@
+[Unit]
+Description=Homelab Operator Command Bot
+After=network-online.target pi-server.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=homelab
+WorkingDirectory=/opt/homelab/raspberry-pi
+ExecStart=/usr/bin/python3 /opt/homelab/raspberry-pi/gogu_bot.py
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

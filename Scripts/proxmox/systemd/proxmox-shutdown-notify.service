@@ -1,0 +1,11 @@
+[Unit]
+Description=Proxmox Shutdown Notification
+DefaultDependencies=no
+Before=shutdown.target reboot.target halt.target
+
+[Service]
+Type=oneshot
+ExecStart=/opt/homelab/proxmox/notify-shutdown.sh
+
+[Install]
+WantedBy=halt.target reboot.target shutdown.target

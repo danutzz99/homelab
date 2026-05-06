@@ -1,0 +1,12 @@
+[Unit]
+Description=Proxmox Boot Notification
+After=network-online.target pve-cluster.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/opt/homelab/proxmox/notify-boot.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

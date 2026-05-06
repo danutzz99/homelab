@@ -1,0 +1,34 @@
+version: "3.8"
+
+services:
+  vault:
+    image: hashicorp/vault:1.15
+    container_name: vault
+    restart: unless-stopped
+    cap_add:
+      - IPC_LOCK
+    security_opt:
+      - apparmor:unconfined
+    ports:
+      - "8200:8200"
+    environment:
+      VAULT_ADDR: http://127.0.0.1:8200
+    command: sh -c "exec vault server -config=/vault/config/vault.hcl"
+    volumes:
+      - ${NFS_CONFIG_PATH}/vault/data:/vault/data
+      - ${NFS_CONFIG_PATH}/vault/config:/vault/config
+
+  tautulli:
+    image: lscr.io/linuxserver/tautulli:latest
+    container_name: tautulli
+    restart: unless-stopped
+    security_opt:
+      - apparmor:unconfined
+    environment:
+      PUID: ""
+      PGID: ""
+      TZ: ""
+    ports:
+      - "8181:8181"
+    volumes:
+      - ${NFS_CONFIG_PATH}/tautulli:/config

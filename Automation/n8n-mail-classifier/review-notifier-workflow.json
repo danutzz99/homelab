@@ -1,0 +1,80 @@
+{
+  "name": "Classifier Review Notifier",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "review-trigger",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        260,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "language": "javaScript",
+        "jsCode": "const item = $json; const labels = Array.isArray(item.labels) ? item.labels.map(String) : []; const removeLabels = Array.isArray(item.removeLabels) ? item.removeLabels.map(String) : []; const normalized = labels.map(label => label.toLowerCase()); const reviewNeeded = normalized.some(label => label.includes('review-needed')); const primaryCategories = labels.filter(label => /^Category\\//i.test(label)); const hasPrimaryConflict = primaryCategories.length > 1; const shouldNotify = reviewNeeded || hasPrimaryConflict || removeLabels.length > 0 || item.debug?.forceManualReview; if (!shouldNotify) return []; const subject = String(item.subject || '(no subject)'); const from = String(item.from || 'Unknown sender'); const reason = item.debug?.reason || (reviewNeeded ? '[review-needed]' : hasPrimaryConflict ? 'primary-category-conflict' : removeLabels.length > 0 ? 'remove-labels-present' : 'manual-review'); return [{ json: { notification: { title: 'Classifier review', subject: subject.slice(0, 256), from: from.slice(0, 400), labels, removeLabels, messageId: String(item.messageId || item.id || 'n/a'), reason, timestamp: new Date().toISOString() } } }];"
+      },
+      "id": "review-format",
+      "name": "Filter And Format Review",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        540,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.REVIEW_NOTIFICATION_URL || $env.NOTIFICATION_URL}}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{$json.notification}}",
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "review-send",
+      "name": "Send Review Notification",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        820,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Filter And Format Review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter And Format Review": {
+      "main": [
+        [
+          {
+            "node": "Send Review Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "classifier-review-notifier-doc"
+}
