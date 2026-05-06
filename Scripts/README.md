@@ -1,53 +1,49 @@
 # Scripts
 
-This directory contains operational scripts and script documentation for the
-Proxmox host, Automation LXC, and Raspberry Pi control plane.
-
-For operational flow diagrams, see [../docs/operations.md](../docs/operations.md).
+This directory documents the operational scripts used across the homelab.
 
 ## Structure
 
 ```text
 Scripts/
-|-- gogu_bot.py                 # Duplicate copy of the Raspberry Pi bot
-|-- raspberry-pi-README.md      # Raspberry Pi deployment and command notes
-|-- raspberry-pi/
-|   |-- gogu_bot.py             # Discord bot for control and monitoring
-|   `-- pi_server.py            # Flask health and Wake-on-LAN API
-|-- lxc-automation/
-|   |-- vault-unseal.sh         # Vault boot unseal helper
-|   `-- wait-for-nfs.sh         # Wait for NAS-backed mounts
-`-- proxmox/
-    |-- README.md               # Proxmox script documentation
-    |-- notify-boot.sh          # Boot notification script
-    `-- notify-shutdown.sh      # Shutdown notification script
+|-- proxmox/           # Proxmox host scripts
+|   |-- notify-boot.sh
+|   `-- notify-shutdown.sh
+|-- lxc-automation/    # Automation LXC scripts
+`-- raspberry-pi/      # Raspberry Pi service scripts
+    |-- pi_server.py
+    `-- gogu_bot.py
 ```
 
 ## Proxmox Host Scripts
 
 | Script | Trigger | Purpose |
 |--------|---------|---------|
-| `proxmox/notify-boot.sh` | systemd on boot | Notify n8n, then Discord fallback |
-| `proxmox/notify-shutdown.sh` | systemd on shutdown | Notify n8n, then Discord fallback |
-
-`proxmox/README.md` also documents a daily conditional shutdown flow. That flow
-is not currently tracked as a standalone script file.
+| `notify-boot.sh` | systemd on boot | Sends a notification when Proxmox comes online |
+| `notify-shutdown.sh` | systemd on shutdown | Sends a notification before Proxmox goes offline |
 
 ## Automation LXC Scripts
 
-| Script | Trigger | Purpose |
-|--------|---------|---------|
-| `lxc-automation/wait-for-nfs.sh` | before dependent services | Wait for NAS-backed config path |
-| `lxc-automation/vault-unseal.sh` | after Docker/Vault startup | Unseal Vault with injected secret values |
+### `vault-unseal.sh`
 
-## Raspberry Pi Scripts
+Automates the Vault recovery flow after a reboot.
+
+In practice, this script coordinates the unseal sequence and retrieves the required values from the automation environment.
+
+### `wait-for-nfs.sh`
+
+Ensures that NFS mounts from the NAS are fully available before starting dependent services such as Docker containers and scheduled jobs.
 
 | Script | Trigger | Purpose |
 |--------|---------|---------|
 | `raspberry-pi/gogu_bot.py` | systemd service | Discord bot for operator commands |
 | `raspberry-pi/pi_server.py` | systemd or manual service | Flask API for `/health`, `/status`, and `/wol` |
 
-## Gogu Bot Commands
+### `notify-boot.sh` and `notify-shutdown.sh`
+
+These scripts send lifecycle notifications when the Proxmox host starts or stops.
+
+The notification flow uses a primary automation endpoint with a fallback alert path so infrastructure events remain visible during maintenance windows.
 
 | Command | Purpose |
 |---------|---------|
@@ -59,17 +55,23 @@ is not currently tracked as a standalone script file.
 | `!banned` | List IPs blocked by the edge security layer |
 | `!ncbans` | List active Nextcloud Fail2Ban bans |
 
-## Configuration
+### `gogu_bot.py`
 
-Scripts use placeholders or environment variables for deployment-specific values.
+A Python-based Discord bot that manages Wake-on-LAN, health checks, and operational commands for the homelab.
+
+It acts as the operator-facing interface for manual actions such as power control, service checks, and selected automation triggers.
+
+| Script | Trigger | Purpose |
+|--------|---------|---------|
+| `pi_server.py` | systemd service | HTTP API for health checks and Wake-on-LAN |
+| `gogu_bot.py` | systemd service | Discord bot for homelab control |
 
 Examples:
 
-- `DISCORD_WEBHOOK`
-- `VAULT_UNSEAL_KEY`
-- `N8N_WEBHOOK_URL`
-- `PROXMOX_HOST`
-- `PROXMOX_TOKEN_SECRET`
-- `CF_API_TOKEN`
+The live services use environment variables for deployment-specific values such as:
 
-Do not commit live values. See [../docs/secrets-policy.md](../docs/secrets-policy.md).
+- `${DISCORD_WEBHOOK}`
+- `${VAULT_UNSEAL_KEY}`
+- `${WEBHOOK_URL}`
+
+Sensitive values are injected at deployment time rather than stored in this repository.
