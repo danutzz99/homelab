@@ -1,85 +1,95 @@
-# Secrets Policy
+# Safety Advice
 
-This repository should explain the homelab without exposing operational secrets.
+This page explains how to document the homelab clearly without turning the repo
+into a place where live credentials or private environment details are stored.
 
-## Safe To Commit
+The goal is simple: a new reader should understand how the setup works, while
+the actual values used by the live server stay in Vault, Portainer, service
+environment files, app settings, or another runtime location.
 
-These are safe when they are placeholders, environment variable names, or generic
-examples:
+## Good Repo Content
 
-- Service names.
-- Container image names.
-- Internal role descriptions.
-- Generic paths such as `/mnt/mainpool/configs/<service>`.
-- Public documentation links.
-- Port mappings already required to understand local service wiring.
-- Environment variable names such as `DISCORD_WEBHOOK` or `VAULT_ADDR`.
-- Placeholder values such as `<VAULT_ADDR>`, `<PROXMOX_HOST>`, and empty Compose
-  values like `TUNNEL_TOKEN=`.
+These details are useful because they explain the shape of the setup:
 
-## Do Not Commit
+| Good to include | Why |
+|-----------------|-----|
+| Service names | Helps readers know what runs where |
+| Container image names | Shows what software each stack uses |
+| Component roles | Explains why a service exists |
+| Generic paths | Shows the storage pattern without exposing a private machine |
+| Public documentation links | Helps future maintenance |
+| Required local ports | Explains service wiring |
+| Environment variable names | Shows what configuration exists without showing values |
+| Empty placeholders | Makes templates reusable and safe |
 
-Never commit live values for:
-
-- Discord bot tokens or webhook URLs.
-- Cloudflare API tokens, tunnel tokens, zone IDs, account IDs, or real domain
-  lists.
-- WireGuard private keys, preshared keys, assigned addresses, or provider config.
-- Vault tokens, unseal keys, root tokens, recovery keys, or secret path contents.
-- Proxmox API token secrets.
-- Tautulli API keys.
-- mail provider credential IDs, credential names, refresh tokens, or OAuth client
-  secrets.
-- Public IP addresses, private IP addresses, MAC addresses, hostnames, or SSH
-  usernames if they identify the live environment.
-- Passwords, passphrases, backup encryption keys, database credentials, and
-  cookie/session values.
-
-## Documentation Pattern
-
-Use this pattern when documenting sensitive integrations:
-
-```text
-The service reads `<SECRET_NAME>` from the deployment environment.
-The live value is stored outside the repository, usually in Vault or the runtime
-environment.
-```
-
-Good examples:
+Examples:
 
 ```yaml
 environment:
-  - TUNNEL_TOKEN=
-  - CLOUDFLARE_API_TOKEN=
+  TUNNEL_TOKEN: ""
+  CLOUDFLARE_API_TOKEN: ""
 ```
-
-```bash
-DISCORD_WEBHOOK="${DISCORD_WEBHOOK}"
-VAULT_ADDR="<VAULT_ADDR>"
-```
-
-Avoid examples like:
 
 ```text
-<discord-webhook-url-with-real-id-and-secret>
-<real-domain>
-<live-ip-address>
+The service reads its webhook URL from the runtime environment.
+```
+
+```text
+Persistent app data lives under `/mnt/mainpool/configs/<service>`.
+```
+
+## Keep Out Of The Repo
+
+These values belong only in the live environment:
+
+| Keep out | Examples |
+|----------|----------|
+| Tokens and API keys | Cloudflare, Discord, Vault, Proxmox, Tautulli |
+| Webhook URLs | Notification endpoints with real IDs or secrets |
+| Authentication values | Passwords, passphrases, cookies, session secrets |
+| VPN credentials | WireGuard private keys, preshared keys, assigned addresses |
+| OAuth values | Refresh tokens, client secrets, credential IDs or names |
+| Live network identifiers | Public/private IPs, MAC addresses, hostnames, SSH usernames |
+| Hardware identifiers | Disk serials, machine IDs, UUIDs |
+| Personal paths | Usernames, workstation names, local drive paths |
+
+## Safe Writing Pattern
+
+When documenting an integration, describe what the value does and where the live
+system reads it from.
+
+Good:
+
+```text
+Watchtower can send notifications through a runtime-provided notification URL.
+```
+
+```text
+Vault recovery values are supplied by the deployment environment.
+```
+
+Avoid:
+
+```text
+Watchtower sends to <full-live-webhook-url>.
+Vault unseal key is <live-key>.
+The server is at <live-ip-or-domain>.
 ```
 
 ## Before Adding A File
 
-1. Replace live identifiers with placeholders.
-2. Replace domain names with `<domain>` or `<n8n-domain>`.
-3. Replace IPs and MAC addresses with placeholders.
-4. Replace user-specific paths with `<user>` when possible.
-5. Keep only the environment variable names needed to understand deployment.
+Use this quick check before committing a new script, stack, workflow export, or
+note:
 
-## Current Repo State
+1. Replace live tokens, keys, and passwords with empty values or placeholders.
+2. Replace domains, IPs, MACs, UUIDs, disk IDs, and machine IDs with generic
+   wording.
+3. Replace local workstation paths with repo-relative or generic paths.
+4. Keep only the variable names needed to explain how deployment works.
+5. If a detail only helps troubleshoot one inspection session, put it in the
+   local dated notes instead of the main repo docs.
 
-The tracked stack and workflow files use placeholders or environment variable
-names for sensitive values. Keep that convention.
-
-## General Maintenance
+## Maintenance Tip
 
 As a routine good practice, rotate tokens, webhooks, and API keys from time to
 time, especially after access changes or when replacing an integration.

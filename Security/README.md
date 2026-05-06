@@ -2,8 +2,8 @@
 
 This folder documents the security services and boundaries for the homelab.
 
-Use [../docs/secrets-policy.md](../docs/secrets-policy.md) for the placeholder
-convention used across the repo.
+Use [../docs/secrets-policy.md](../docs/secrets-policy.md) for the repo's safe
+documentation advice.
 
 ## HashiCorp Vault
 

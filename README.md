@@ -13,7 +13,7 @@ variable names.
 [![Services](https://img.shields.io/badge/Services-Catalog-0f766e?style=for-the-badge)](docs/service-catalog.md)
 [![Map](https://img.shields.io/badge/Repo-Map-64748b?style=for-the-badge)](docs/repository-map.md)
 [![Operations](https://img.shields.io/badge/Ops-Boot_and_Power-7c3aed?style=for-the-badge)](docs/operations.md)
-[![Secrets](https://img.shields.io/badge/Security-Secrets_Policy-be123c?style=for-the-badge)](docs/secrets-policy.md)
+[![Safety](https://img.shields.io/badge/Security-Safety_Advice-be123c?style=for-the-badge)](docs/secrets-policy.md)
 
 [![Proxmox](https://img.shields.io/badge/Proxmox-Host-e57000?style=for-the-badge&logo=proxmox&logoColor=white)](docs/current-setup.md#proxmox-host)
 [![TrueNAS](https://img.shields.io/badge/TrueNAS-Storage-0095d5?style=for-the-badge&logo=truenas&logoColor=white)](docs/current-setup.md#truenas-scale-vm)
@@ -28,7 +28,7 @@ variable names.
 | Understand the whole server | [Current setup](docs/current-setup.md) |
 | Find every tracked service | [Service catalog](docs/service-catalog.md) |
 | Understand each folder and file | [Repository map](docs/repository-map.md) |
-| Check what must never be committed | [Secrets policy](docs/secrets-policy.md) |
+| Keep docs useful without leaking private values | [Safety advice](docs/secrets-policy.md) |
 | Follow boot, shutdown, Vault, and alert flows | [Operations](docs/operations.md) |
 
 ## Useful Outside References
@@ -87,13 +87,13 @@ homelab/
 - `Scripts/` contains operational script areas for Proxmox, LXCs, and the
   Raspberry Pi control plane.
 
-## Secrets
+## Safe Documentation
 
 Configuration values belong in the runtime environment. The repo keeps the
 documentation focused on structure, responsibilities, and placeholders.
 
-See [docs/secrets-policy.md](docs/secrets-policy.md) for the detailed
-placeholder convention.
+See [docs/secrets-policy.md](docs/secrets-policy.md) for practical advice on
+what belongs in the repo and what stays in the live environment.
 
 ## Quick Mental Model
 

@@ -18,7 +18,7 @@ for.
 | `docs/current-setup.md` | Current topology and server responsibilities |
 | `docs/service-catalog.md` | Service-by-service catalog |
 | `docs/repository-map.md` | File-by-file guide |
-| `docs/secrets-policy.md` | Safe documentation and redaction rules |
+| `docs/secrets-policy.md` | Safety advice for documenting without storing live values |
 | `docs/operations.md` | Operational flows and dependencies |
 
 ## Infrastructure

@@ -58,4 +58,5 @@ The stack files intentionally contain placeholders or empty values for secrets.
 Live values should be injected through Portainer, Vault, or the runtime
 environment.
 
-See [../docs/secrets-policy.md](../docs/secrets-policy.md).
+See [../docs/secrets-policy.md](../docs/secrets-policy.md) for safe
+documentation guidance.
