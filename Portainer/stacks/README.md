@@ -14,4 +14,5 @@ TrueNAS stack definitions and should be kept synchronized with
 Deployment-specific values are left blank in the templates and filled in through
 Portainer, Vault, or the runtime environment.
 
-See [../../docs/secrets-policy.md](../../docs/secrets-policy.md).
+See [../../docs/secrets-policy.md](../../docs/secrets-policy.md) for safe
+documentation guidance.

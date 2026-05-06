@@ -18,7 +18,7 @@ for.
 | `docs/current-setup.md` | Current topology and server responsibilities |
 | `docs/service-catalog.md` | Service-by-service catalog |
 | `docs/repository-map.md` | File-by-file guide |
-| `docs/secrets-policy.md` | Safe documentation and redaction rules |
+| `docs/secrets-policy.md` | Safety advice for documenting without storing live values |
 | `docs/operations.md` | Operational flows and dependencies |
 
 ## Infrastructure
@@ -78,7 +78,7 @@ for.
 | `Scripts/lxc-automation/wait-for-nfs.sh` | Waits for NAS-backed mounts before dependent services |
 | `Scripts/lxc-automation/README.md` | Automation LXC script and manifest overview |
 | `Scripts/lxc-automation/vault-unseal.sh` | Vault boot unseal helper |
-| `Scripts/lxc-automation/automation-stack.yaml` | Automation LXC Vault and Tautulli stack manifest |
+| `Scripts/lxc-automation/automation-stack.yaml` | Automation LXC Vault, Tautulli, and HoneyAuth stack manifest |
 | `Scripts/lxc-automation/vault.hcl` | Vault server configuration |
 | `Scripts/lxc-automation/systemd/automation-stack.service` | Automation LXC stack startup service template |
 | `Scripts/lxc-automation/systemd/vault-unseal.service` | Vault recovery service template |

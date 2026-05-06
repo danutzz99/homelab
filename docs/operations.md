@@ -15,8 +15,12 @@ Automation LXC starts
   |
   |-- wait-for-nfs.sh runs before dependent services
   |-- confirms NAS-backed config path is present
-  |-- Docker and services start after storage is ready
+  |-- Docker starts Vault, Tautulli, and HoneyAuth after storage is ready
   `-- vault-unseal.sh waits for Vault and completes the recovery flow
+
+n8n LXC starts
+  |
+  `-- systemd starts the Node-based n8n service with runtime settings from the LXC
 ```
 
 Tracked files:
@@ -41,6 +45,11 @@ Tracked file:
 
 - `Scripts/proxmox/notify-shutdown.sh`
 - `Scripts/proxmox/systemd/proxmox-shutdown-notify.service`
+
+Current Proxmox state:
+
+- The shutdown notification service is enabled and runs when the host enters
+  shutdown, reboot, or halt.
 
 The Proxmox README documents the older conditional daily shutdown flow. That
 older flow checks a skip flag and the Raspberry Pi before powering down.
@@ -69,6 +78,8 @@ Current status:
 
 - The Raspberry Pi control plane is temporarily disabled.
 - Automatic morning wake currently depends on the Proxmox RTC schedule.
+- Host-local RTC helper scripts are present for scheduled shutdown, skip
+  control, status, boot summary, and notifications.
 - Manual remote wake needs an always-on external control plane before it can work
   while Proxmox is powered off.
 

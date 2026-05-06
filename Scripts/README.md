@@ -30,7 +30,8 @@ The Automation LXC scripts coordinate startup dependencies:
 - `wait-for-nfs.sh` waits for NAS-backed storage before dependent services start.
 - `vault-unseal.sh` handles the Vault recovery flow after reboot using values
   provided by the runtime environment.
-- `automation-stack.yaml` shows the Vault and Tautulli container stack shape.
+- `automation-stack.yaml` shows the Vault, Tautulli, and HoneyAuth container
+  stack shape.
 - `vault.hcl` shows the Vault server configuration.
 - `systemd/` contains service templates for stack startup and Vault recovery.
 

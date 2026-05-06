@@ -13,23 +13,29 @@ Proxmox is the physical host and hypervisor.
 |-------|------|-------|
 | TrueNAS Scale VM | Storage and Docker host | Optimized for storage and app hosting |
 | Plex VM | Media streaming | Uses NVIDIA GTX 1070 passthrough |
-| Automation LXC | Vault, n8n, Tautulli | Runs automation and secret services |
+| Automation LXC | Vault, Tautulli, HoneyAuth | Runs secrets, monitoring, and lightweight app protection |
+| n8n LXC | Workflow automation | Runs n8n separately from the Automation LXC |
 | Client LXC | Nextcloud | Private cloud and shared family files |
 
 ## TrueNAS VM Optimization
 
 | Setting | Current value |
 |---------|---------------|
-| CPU type | `host` for AES-NI passthrough |
+| CPU type | AES-capable virtual CPU model |
 | Memory | Fixed allocation, no ballooning |
 | Disk controller | VirtIO SCSI |
+| Storage disks | Passed through to the VM |
 
 ## Plex VM Optimization
 
 | Setting | Current value |
 |---------|---------------|
 | GPU passthrough | NVIDIA GTX 1070 |
+| Machine type | q35 |
+| Guest agent | Enabled |
 | Guest drivers | Official NVIDIA drivers on Ubuntu VM |
+| Plex install style | Snap-based Plex install |
+| Media access | TrueNAS media dataset mounted into the VM |
 
 ## TrueNAS Scale
 

@@ -14,6 +14,13 @@ For the full server map, see [../docs/current-setup.md](../docs/current-setup.md
 | Media data | Shared media dataset at `/mnt/mainpool/media` |
 | App config | Persistent config dataset at `/mnt/mainpool/configs` |
 
+## Management Model
+
+TrueNAS provides the storage and Docker runtime. Portainer runs as a TrueNAS
+custom app and uses the local Docker socket to manage the repo-defined stacks.
+The stacks keep long-lived app data under `/mnt/mainpool/configs/<service>` and
+media data under `/mnt/mainpool/media`.
+
 ## Stacks
 
 | Stack | File | Purpose |
@@ -51,4 +58,5 @@ The stack files intentionally contain placeholders or empty values for secrets.
 Live values should be injected through Portainer, Vault, or the runtime
 environment.
 
-See [../docs/secrets-policy.md](../docs/secrets-policy.md).
+See [../docs/secrets-policy.md](../docs/secrets-policy.md) for safe
+documentation guidance.
