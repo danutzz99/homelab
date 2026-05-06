@@ -1,11 +1,7 @@
 # Safety Advice
 
-This page explains how to document the homelab clearly without turning the repo
-into a place where live credentials or private environment details are stored.
-
-The goal is simple: a new reader should understand how the setup works, while
-the actual values used by the live server stay in Vault, Portainer, service
-environment files, app settings, or another runtime location.
+This page is only general advice for keeping the repo useful, readable, and
+safe to share.
 
 ## Good Repo Content
 
