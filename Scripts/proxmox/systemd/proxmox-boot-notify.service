@@ -5,7 +5,7 @@ Wants=network-online.target
 
 [Service]
 Type=oneshot
-ExecStart=/opt/homelab/proxmox/notify-boot.sh
+ExecStart=/root/notify-boot.sh
 RemainAfterExit=yes
 
 [Install]

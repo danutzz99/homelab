@@ -32,3 +32,21 @@ services:
       - "8181:8181"
     volumes:
       - ${NFS_CONFIG_PATH}/tautulli:/config
+
+  honeyauth:
+    image: python:3.11-slim
+    container_name: honeyauth
+    restart: unless-stopped
+    working_dir: /app
+    command: sh -c "pip install --no-cache-dir flask requests gunicorn && exec gunicorn -w 4 -b 0.0.0.0:5000 app:app"
+    environment:
+      USERS: ""
+      SECRET_KEY: ""
+      WHITELIST_CIDRS: ""
+      DISCORD_WEBHOOK_URL: ""
+      CF_API_TOKEN: ""
+      CF_ZONE_ID: ""
+    ports:
+      - "5000:5000"
+    volumes:
+      - ${NFS_CONFIG_PATH}/honeyauth:/app:ro

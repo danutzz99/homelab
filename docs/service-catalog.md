@@ -9,13 +9,19 @@ This catalog lists the homelab components described in the repository.
 | Proxmox VE | Host | Hypervisor for VMs and LXCs | `Infrastructure/README.md`, `Scripts/proxmox/` |
 | TrueNAS Scale | VM | Storage and Docker host | `Infrastructure/README.md`, `TrueNas/` |
 | Portainer | TrueNAS custom app | Docker stack management | `TrueNas/README.md`, `Portainer/stacks/` |
-| Plex | VM | Media streaming | `README.md`, `Infrastructure/README.md` |
-| Nextcloud | LXC | Private cloud and file sharing | `README.md`, `docs/current-setup.md` |
+| Plex | VM | Media streaming from TrueNAS media storage with GPU support | `README.md`, `Infrastructure/README.md` |
+| Nextcloud | LXC | Private cloud and file sharing with database, cache, and ban protection | `README.md`, `docs/current-setup.md` |
 | Vault | Automation LXC | Secret storage | `Security/README.md`, `Scripts/lxc-automation/` |
-| n8n | Automation LXC | Mail-classifier workflow documentation | `Automation/` |
-| Tautulli | Automation LXC | Plex monitoring/status | `Scripts/raspberry-pi/gogu_bot.py` |
+| HoneyAuth | Automation LXC | Lightweight auth gate and honeypot-style alerting for protected apps | `Security/README.md`, `Scripts/lxc-automation/` |
+| n8n | Dedicated LXC | Workflow automation and mail-classifier documentation | `Automation/` |
+| Tautulli | Automation LXC | Plex monitoring/status | `Scripts/lxc-automation/` |
 | Raspberry Pi API | Raspberry Pi, temporarily disabled | Legacy health and Wake-on-LAN API | `Scripts/raspberry-pi/pi_server.py` |
 | Gogu bot | Raspberry Pi, temporarily disabled | Legacy operator command interface | `Scripts/raspberry-pi/gogu_bot.py` |
+| Power command bot | Proxmox host | Host-local power commands while Proxmox is running | `docs/current-setup.md`, `docs/operations.md` |
+
+Note: the n8n and Nextcloud LXCs were created with
+[Proxmox VE Community Scripts](https://community-scripts.org/), a
+community-maintained helper-script library for Proxmox LXC and VM setup.
 
 ## Media Stack
 
@@ -105,7 +111,7 @@ This section explains the workflow shape at a high level.
 | `Scripts/proxmox/check_nc_bans.sh` | Proxmox host | Summarize active Nextcloud Fail2Ban blocks |
 | `Scripts/lxc-automation/wait-for-nfs.sh` | Automation LXC | Wait for NAS-backed mounts before services |
 | `Scripts/lxc-automation/vault-unseal.sh` | Automation LXC | Unseal Vault after startup |
-| `Scripts/lxc-automation/automation-stack.yaml` | Automation LXC | Vault and Tautulli stack shape |
+| `Scripts/lxc-automation/automation-stack.yaml` | Automation LXC | Vault, Tautulli, and HoneyAuth stack shape |
 | `Scripts/lxc-automation/systemd/` | Automation LXC | Startup service templates |
 | `Scripts/raspberry-pi/arise.sh` | Raspberry Pi, temporarily disabled | Wake-on-LAN helper |
 | `Scripts/raspberry-pi/systemd/` | Raspberry Pi, temporarily disabled | Control-plane service templates |

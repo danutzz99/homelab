@@ -40,6 +40,23 @@ Tracked placeholders:
 - `CLOUDFLARE_API_TOKEN`
 - `DOMAINS`
 
+## HoneyAuth
+
+HoneyAuth runs in the Automation LXC as a lightweight application gate for
+protected services. It can sit in front of selected apps through the reverse
+proxy auth-request pattern.
+
+Role:
+
+- Check whether a request already has a valid authentication cookie.
+- Send unauthenticated users to a login page.
+- Alert on invalid login attempts.
+- Optionally request edge-level blocks through the configured provider API.
+
+Runtime values such as users, password hashes, session keys, allowed networks,
+notification endpoints, and API tokens are provided by the deployment
+environment.
+
 ## Edge And Application Protection
 
 Documented protections include:

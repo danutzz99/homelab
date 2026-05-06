@@ -78,7 +78,7 @@ for.
 | `Scripts/lxc-automation/wait-for-nfs.sh` | Waits for NAS-backed mounts before dependent services |
 | `Scripts/lxc-automation/README.md` | Automation LXC script and manifest overview |
 | `Scripts/lxc-automation/vault-unseal.sh` | Vault boot unseal helper |
-| `Scripts/lxc-automation/automation-stack.yaml` | Automation LXC Vault and Tautulli stack manifest |
+| `Scripts/lxc-automation/automation-stack.yaml` | Automation LXC Vault, Tautulli, and HoneyAuth stack manifest |
 | `Scripts/lxc-automation/vault.hcl` | Vault server configuration |
 | `Scripts/lxc-automation/systemd/automation-stack.service` | Automation LXC stack startup service template |
 | `Scripts/lxc-automation/systemd/vault-unseal.service` | Vault recovery service template |
