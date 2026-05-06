@@ -1,53 +1,58 @@
 # Proxmox Host Scripts
 
-Scripts that run directly on the Proxmox host for lifecycle notifications and power management.
+Scripts in this folder run directly on the Proxmox host for lifecycle
+notifications. A daily shutdown flow is also documented here, but its standalone
+script is not currently tracked in the repo.
 
-## Components
+## Tracked Scripts
 
 | Script | Trigger | Purpose |
 |--------|---------|---------|
-| `notify-boot.sh` | System boot | Sends a notification when Proxmox comes online |
-| `notify-shutdown.sh` | System shutdown | Sends a notification before Proxmox goes offline |
-| `daily_shutdown.sh` | Cron at 02:00 | Conditional shutdown that checks Raspberry Pi availability first |
+| `notify-boot.sh` | System boot | Send a boot notification to n8n, with Discord fallback |
+| `notify-shutdown.sh` | System shutdown | Send a shutdown notification to n8n, with Discord fallback |
 
-## Directory Structure
-
-```text
-proxmox/
-|-- scripts/
-|   |-- notify-boot.sh       # Boot notification script
-|   |-- notify-shutdown.sh   # Shutdown notification script
-|   `-- daily_shutdown.sh    # Conditional shutdown script
-`-- systemd/
-    |-- proxmox-boot-notify.service
-    `-- proxmox-shutdown-notify.service
-```
-
-## Conditional Shutdown
-
-Location: `/usr/local/sbin/daily_shutdown.sh`
-Cron: `0 2 * * *`
-
-### Logic Flow
+## Notification Flow
 
 ```text
-02:00 -> Script starts
+System event
   |
-  |-- Is the skip flag present? (/var/run/skip_shutdown_today)
-  |     `-- Yes -> Skip shutdown, remove flag, exit
+  |-- call configured n8n webhook
   |
-  |-- Is the Raspberry Pi reachable?
-  |     |-- Yes -> Proceed with shutdown
-  |     `-- No  -> Abort shutdown and attempt recovery
+  |-- if webhook succeeds:
+  |     `-- event is handled by automation
   |
-  `-- If the Pi is unreachable, attempt an SSH reboot as a best-effort recovery step
+  `-- if webhook fails:
+        `-- send direct Discord fallback alert
 ```
 
-### Why This Exists
+Required runtime values:
 
-The Raspberry Pi is responsible for Wake-on-LAN automation. If the Pi is offline when the server shuts down, remote wake-up is no longer available. This guard prevents that scenario.
+- `N8N_WEBHOOK_URL` or equivalent webhook placeholder.
+- `DISCORD_WEBHOOK` for fallback alerts.
 
-### Script Example
+Do not commit live webhook URLs.
+
+## Documented Daily Shutdown Flow
+
+The README documents this operational flow even though the script is not tracked
+as a separate file:
+
+```text
+02:00 scheduled shutdown check
+  |
+  |-- skip flag exists at /var/run/skip_shutdown_today?
+  |     `-- yes: remove flag and skip shutdown
+  |
+  |-- Raspberry Pi reachable?
+  |     |-- yes: proceed with host shutdown
+  |     `-- no: abort shutdown and attempt recovery
+```
+
+The reason for this guard is simple: the Raspberry Pi is responsible for
+Wake-on-LAN. If the Pi is unavailable when Proxmox powers off, remote wake-up may
+not be available.
+
+## Sanitized Script Example
 
 ```bash
 #!/bin/bash
@@ -63,36 +68,17 @@ if [ -f "$FLAG" ]; then
 fi
 
 if ping -c 3 "$PI_IP" > /dev/null 2>&1; then
-  echo "$(date '+%F %T') - Pi ($PI_IP) is online. Proceeding with shutdown." >> "$LOG"
+  echo "$(date '+%F %T') - Pi is online. Proceeding with shutdown." >> "$LOG"
   /sbin/shutdown -h now
 else
-  echo "$(date '+%F %T') - Pi ($PI_IP) is unreachable. Aborting shutdown." >> "$LOG"
+  echo "$(date '+%F %T') - Pi is unreachable. Aborting shutdown." >> "$LOG"
   ssh -o ConnectTimeout=10 -o StrictHostKeyChecking=no "$PI_USER@$PI_IP" "sudo reboot" >> "$LOG" 2>&1
   exit 1
 fi
 ```
 
-## Installation
+## Repository Gap
 
-1. Copy scripts:
-   ```bash
-   cp scripts/* /root/
-   chmod +x /root/notify-*.sh
-   ```
-
-2. Copy and enable services:
-   ```bash
-   cp systemd/* /etc/systemd/system/
-   systemctl daemon-reload
-   systemctl enable proxmox-boot-notify proxmox-shutdown-notify
-   ```
-
-## Notification Flow
-
-```text
-System boot
-  -> short startup delay
-  -> try automation endpoint
-  -> if that fails, use the fallback Discord alert path
-  -> notification sent
-```
+If this shutdown behavior is live and important, add a sanitized
+`daily_shutdown.sh` file and matching systemd/cron notes so the repo becomes the
+source of truth.

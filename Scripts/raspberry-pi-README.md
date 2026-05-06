@@ -1,40 +1,68 @@
-# Raspberry Pi Automation Scripts
+# Raspberry Pi Automation
 
-## `gogu_bot.py`
-A custom Discord bot running on a Raspberry Pi Zero to control and monitor the homelab infrastructure.
+The Raspberry Pi acts as the low-power control plane for the homelab. It should
+stay available even when the main server is powered down.
 
-### Features
-- **Wake-on-LAN:** Wakes up the main Proxmox host via `!wake`.
-- **Shutdown Management:** Can trigger valid shutdowns (`!shutdown`) or skip scheduled auto-shutdowns (`!notnow`).
-- **Health Checks:** Monitors status of Proxmox, Vault, and Tautulli via `!status`.
-- **Security Monitoring:** Checks Nextcloud Fail2Ban jails for intruders via `!ncbans`.
+## Tracked Components
 
-### Commands Reference
+| File | Purpose |
+|------|---------|
+| `raspberry-pi/gogu_bot.py` | Discord bot for homelab commands |
+| `raspberry-pi/pi_server.py` | Flask API for health checks and Wake-on-LAN |
+
+## Gogu Bot
+
+`gogu_bot.py` provides Discord commands for manual control and status checks.
+
 | Command | Description |
 |---------|-------------|
-| `!wake` | Send Magic Packet to Proxmox Host |
-| `!status` | Report health status of all critical services |
-| `!shutdown` | Gracefully shutdown host (requires confirmation) |
-| `!notnow` | Set flag to skip tonight's cron-scheduled shutdown |
+| `!wake` | Send Wake-on-LAN to the Proxmox host |
+| `!status` | Report health for Vault, Tautulli, Proxmox, and Pi |
+| `!shutdown` | Gracefully shut down the Proxmox host after confirmation |
+| `!notnow` | Skip the scheduled shutdown for the current night |
 | `!shutdown_status` | Check if auto-shutdown is active or skipped |
-| `!banned` | List IPs currently banned by HoneyAuth (Cloudflare WAF) |
-| `!ncbans` | Report IPs and Usernames currently banned by Nextcloud |
+| `!banned` | List IPs currently blocked by the edge security layer |
+| `!ncbans` | Report active Nextcloud Fail2Ban bans |
 
-### Deployment
-Deployed as a systemd service:
+## Pi API
+
+`pi_server.py` exposes:
+
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/health` | `GET` | Basic liveness check |
+| `/status` | `GET` | Pi status and Gogu bot process check |
+| `/wol` | `POST` | Send Wake-on-LAN to the Proxmox host |
+
+## Deployment Shape
+
+The bot and API are intended to run as services on the Pi. Keep service files
+sanitized if they are added to the repo later.
+
+Example service shape:
+
 ```ini
 [Unit]
 Description=Gogu Discord Bot
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/python3 /home/dan/gogu-bot/gogu_bot.py
+ExecStart=/usr/bin/python3 /home/<user>/gogu-bot/gogu_bot.py
 Restart=always
-User=dan
+User=<user>
 
 [Install]
 WantedBy=multi-user.target
 ```
 
-## `pi_server.py`
-A lightweight Flask API that exposes local Pi functionality (like WOL) to other internal services (e.g., n8n workflows).
+## Sensitive Values
+
+Keep these outside Git:
+
+- Discord bot token.
+- Discord webhook URL.
+- Proxmox host address.
+- Proxmox MAC address.
+- Cloudflare API token and zone ID.
+- Proxmox API token secret.
+- Vault token and secret paths that reveal live structure.
