@@ -44,6 +44,7 @@ TrueNAS Scale
   |
   |-- Tools stack
   |     |-- ComposeToolbox supports stack editing
+  |     |-- Tracktor stores lightweight app/dashboard data
   |     |-- Dockpeek reads Docker state
   |     |-- HarborGuard scans Docker images
   |     |-- MediaManager uses Postgres and the media dataset

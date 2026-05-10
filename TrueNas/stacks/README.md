@@ -40,12 +40,15 @@ names.
 | `AIRVPN_WIREGUARD_ADDRESSES` | Gluetun |
 | `AIRVPN_FORWARDED_PORTS` | Gluetun firewall input ports |
 | `QBITTORRENT_TORRENTING_PORT` | qBittorrent |
+| `HOMELAB_TIMEZONE` | Container `TZ` values |
 | `CLOUDFLARED_TUNNEL_TOKEN` | Cloudflared |
+| `WATCHTOWER_NOTIFICATIONS_HOSTNAME` | Watchtower notification hostname label |
 | `WATCHTOWER_NOTIFICATION_URL` | Watchtower notifications |
 | `CAPACITARR_JWT_SECRET` | Capacitarr |
 | `DOCKPEEK_SECRET_KEY` | Dockpeek |
 | `DOCKPEEK_USERNAME` | Dockpeek |
 | `DOCKPEEK_PASSWORD` | Dockpeek |
+| `DOCKPEEK_DOCKER_HOST_NAME` | Dockpeek display name for the Docker host |
 | `MEDIAMANAGER_POSTGRES_PASSWORD` | MediaManager Postgres and app config |
 | `CLOUDFLARE_API_TOKEN` | Cloudflare DDNS |
 | `CLOUDFLARE_DDNS_DOMAINS` | Cloudflare DDNS |

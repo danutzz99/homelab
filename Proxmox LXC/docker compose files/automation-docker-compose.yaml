@@ -8,7 +8,7 @@ services:
       - apparmor:unconfined
     ports: ["8200:8200"]
     environment:
-      - VAULT_ADDR=
+      - VAULT_ADDR=${VAULT_ADDR:-}
     command: sh -c "exec vault server -config=/vault/config/vault.hcl"
     volumes:
       - /mnt/configs/vault/data:/vault/data
@@ -28,11 +28,11 @@ services:
       - N8N_HOST=0.0.0.0
       - N8N_PORT=5678
       - N8N_USER_FOLDER=/home/node/.n8n
-      - WEBHOOK_URL=
-      - TZ=Europe/Bucharest
+      - WEBHOOK_URL=${N8N_WEBHOOK_URL:-}
+      - TZ=${HOMELAB_TIMEZONE:-}
       - N8N_BASIC_AUTH_ACTIVE=true
-      - N8N_BASIC_AUTH_USER=admin
-      - N8N_BASIC_AUTH_PASSWORD={}
+      - N8N_BASIC_AUTH_USER=${N8N_BASIC_AUTH_USER:-}
+      - N8N_BASIC_AUTH_PASSWORD=${N8N_BASIC_AUTH_PASSWORD:-}
     volumes:
       - /mnt/configs/n8n:/home/node/.n8n
 
@@ -45,7 +45,7 @@ services:
     environment:
       - PUID=568
       - PGID=568
-      - TZ=Europe/Bucharest
+      - TZ=${HOMELAB_TIMEZONE:-}
     ports: ["8181:8181"]
     volumes:
       - /mnt/configs/tautulli:/config

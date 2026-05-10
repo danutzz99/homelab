@@ -43,6 +43,7 @@ for.
 |------|---------|
 | `Infrastructure/README.md` | Proxmox, TrueNAS, storage, and VM optimization notes |
 | `Security/README.md` | Vault, Cloudflare, and Docker socket security boundaries |
+| `Proxmox LXC/docker compose files/automation-docker-compose.yaml` | Legacy/example Automation LXC Compose file for Vault, n8n, and Tautulli |
 
 ## Automation
 
@@ -50,6 +51,9 @@ for.
 |------|---------|
 | `Automation/README.md` | Automation overview and n8n workflow links |
 | `Automation/n8n-mail-classifier/` | Mail ingestion, classification, cleanup, and notification docs |
+| `Automation/n8n-mail-classifier/01-overview/` through `07-error-notifier/` | Step-by-step documentation for each n8n workflow stage |
+| `Automation/n8n-mail-classifier/workflow-notes.md` | Import and adaptation notes for the workflow |
+| `Automation/n8n-mail-classifier/workflow-visual.md` | Reader-friendly workflow diagram and control flow |
 
 ## Scripts
 
@@ -57,8 +61,11 @@ for.
 |------|---------|
 | `Scripts/README.md` | Script index and operational overview |
 | `Scripts/proxmox/` | Proxmox lifecycle and power-management scripts |
+| `Scripts/proxmox/systemd/` | systemd unit examples for Proxmox notification scripts |
 | `Scripts/lxc-automation/` | Automation LXC startup helpers and stack manifest |
+| `Scripts/lxc-automation/systemd/` | systemd unit examples for the automation stack and Vault unseal helper |
 | `Scripts/raspberry-pi/` | Legacy Raspberry Pi control-plane scripts |
+| `Scripts/raspberry-pi/systemd/` | systemd unit examples for legacy Raspberry Pi services |
 | `Scripts/gogu_bot.py` | Duplicate copy of the Raspberry Pi command bot |
 
 ## Notes

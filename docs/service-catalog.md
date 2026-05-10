@@ -57,15 +57,15 @@ How the media stack fits together:
 Defined in `TrueNas/stacks/tools-stack.yaml` and mirrored in
 `Portainer/stacks/tools-stack.yaml`.
 
-| Service | Image | Role | Ports |
-|---------|-------|------|-------|
-| `composetoolbox` | `ghcr.io/bluegoosemedia/composetoolbox` | Browser-based helper for Compose stack work | `3000:3000` |
-| `tracktor` | `ghcr.io/javedh-dev/tracktor:latest` | Lightweight app/dashboard data service | `3333:3000` |
-| `dockpeek` | `dockpeek/dockpeek:latest` | Docker container visibility through the Docker socket | `3420:8000` |
-| `mediamanager` | `ghcr.io/maxdorninger/mediamanager/mediamanager:latest` | Media library manager and inspection UI | `8000:8000` |
-| `mediamanager_postgres` | `postgres:17` | Database for MediaManager | none exposed |
-| `hb` | `ghcr.io/harborguard/harborguard:latest` | Docker image vulnerability scanner | `2998:8080` |
-| `nextexplorer` | `nxzai/explorer:latest` | File explorer for the main pool | `3001:3000` |
+| Compose service | Container name | Image | Role | Ports |
+|-----------------|----------------|-------|------|-------|
+| `composetoolbox` | project-generated | `ghcr.io/bluegoosemedia/composetoolbox` | Browser-based helper for Compose stack work | `3000:3000` |
+| `tracktor` | `tracktor` | `ghcr.io/javedh-dev/tracktor:latest` | Lightweight app/dashboard data service | `3333:3000` |
+| `dockpeek` | `dockpeek` | `dockpeek/dockpeek:latest` | Docker container visibility through the Docker socket | `3420:8000` |
+| `mediamanager` | `mediamanager` | `ghcr.io/maxdorninger/mediamanager/mediamanager:latest` | Media library manager and inspection UI | `8000:8000` |
+| `db` | `mediamanager_postgres` | `postgres:17` | Database for MediaManager | none exposed |
+| `hb` | project-generated | `ghcr.io/harborguard/harborguard:latest` | Docker image vulnerability scanner | `2998:8080` |
+| `nextexplorer` | `nextexplorer` | `nxzai/explorer:latest` | File explorer for the main pool | `3001:3000` |
 
 How the tools stack fits together:
 
@@ -86,10 +86,10 @@ How the tools stack fits together:
 Defined in `TrueNas/stacks/nginx-ddns.yaml` and mirrored in
 `Portainer/stacks/nginx-ddns.yaml`.
 
-| Service | Image | Role | Ports |
-|---------|-------|------|-------|
-| `nginx-proxy-manager` | `jc21/nginx-proxy-manager:latest` | Reverse proxy and certificate UI | `8081:80`, `8443:443`, `8181:81` |
-| `cloudflare-ddns` | `favonia/cloudflare-ddns:latest` | Dynamic DNS updater | none exposed |
+| Compose service | Container name | Image | Role | Ports |
+|-----------------|----------------|-------|------|-------|
+| `proxy` | `nginx-proxy-manager` | `jc21/nginx-proxy-manager:latest` | Reverse proxy and certificate UI | `8081:80`, `8443:443`, `8181:81` |
+| `ddns` | `cloudflare-ddns` | `favonia/cloudflare-ddns:latest` | Dynamic DNS updater | none exposed |
 
 Cloudflare DDNS is configured to run as user `568:568`, read-only, with all
 capabilities dropped and `no-new-privileges` enabled.

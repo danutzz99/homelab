@@ -30,7 +30,7 @@ services:
     environment:
       - LOG_LEVEL=info
       - HEALTH_SERVER_ADDRESS=127.0.0.1:9999
-      - TZ=Europe/Bucharest
+      - TZ=${HOMELAB_TIMEZONE:-}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     restart: always
@@ -42,7 +42,7 @@ services:
       - LOG_LEVEL=info
       - LOG_HTML=false
       - CAPTCHA_SOLVER=none
-      - TZ=Europe/Bucharest
+      - TZ=${HOMELAB_TIMEZONE:-}
     ports:
       - "8191:8191"
     restart: unless-stopped
@@ -55,7 +55,7 @@ services:
     environment:
       - PUID=568
       - PGID=568
-      - TZ=Europe/Bucharest
+      - TZ=${HOMELAB_TIMEZONE:-}
       - WEBUI_PORT=8080
       - TORRENTING_PORT=${QBITTORRENT_TORRENTING_PORT:-}
     network_mode: service:gluetun
@@ -70,7 +70,7 @@ services:
     environment:
       - PUID=568
       - PGID=568
-      - TZ=Europe/Bucharest
+      - TZ=${HOMELAB_TIMEZONE:-}
     volumes:
       - /mnt/mainpool/configs/prowlarr:/config
       - /mnt/mainpool/media:/media
@@ -84,7 +84,7 @@ services:
     environment:
       - PUID=568
       - PGID=568
-      - TZ=Europe/Bucharest
+      - TZ=${HOMELAB_TIMEZONE:-}
     volumes:
       - /mnt/mainpool/configs/sonarr:/config
       - /mnt/mainpool/media:/media
@@ -98,7 +98,7 @@ services:
     environment:
       - PUID=568
       - PGID=568
-      - TZ=Europe/Bucharest
+      - TZ=${HOMELAB_TIMEZONE:-}
     volumes:
       - /mnt/mainpool/configs/radarr:/config
       - /mnt/mainpool/media:/media
@@ -112,7 +112,7 @@ services:
     environment:
       - PUID=568
       - PGID=568
-      - TZ=Europe/Bucharest
+      - TZ=${HOMELAB_TIMEZONE:-}
     volumes:
       - /mnt/mainpool/configs/bazarr:/config
       - /mnt/mainpool/media:/media
@@ -124,7 +124,7 @@ services:
     image: santiagosayshey/profilarr:latest
     container_name: profilarr
     environment:
-      - TZ=Europe/Bucharest
+      - TZ=${HOMELAB_TIMEZONE:-}
     volumes:
       - /mnt/mainpool/configs/profilarr:/config
     restart: unless-stopped
@@ -147,7 +147,7 @@ services:
     environment:
       - PUID=568
       - PGID=568
-      - TZ=Europe/Bucharest
+      - TZ=${HOMELAB_TIMEZONE:-}
     volumes:
       - /mnt/mainpool/configs/overseerr:/config
     ports:
@@ -158,8 +158,8 @@ services:
     image: nickfedor/watchtower
     container_name: watchtower
     environment:
-      TZ: Europe/Bucharest
-      WATCHTOWER_NOTIFICATIONS_HOSTNAME: truenas
+      TZ: "${HOMELAB_TIMEZONE:-}"
+      WATCHTOWER_NOTIFICATIONS_HOSTNAME: "${WATCHTOWER_NOTIFICATIONS_HOSTNAME:-}"
       WATCHTOWER_CLEANUP: "true"
       WATCHTOWER_INCLUDE_STOPPED: "true"
       WATCHTOWER_SCHEDULE: "0 0 11 * * 1"
@@ -173,7 +173,7 @@ services:
     image: ghcr.io/ghent/capacitarr:stable
     container_name: capacitarr
     environment:
-      - TZ=Europe/Bucharest
+      - TZ=${HOMELAB_TIMEZONE:-}
       - PUID=568
       - PGID=568
       - JWT_SECRET=${CAPACITARR_JWT_SECRET:-}
@@ -189,7 +189,7 @@ services:
   #   environment:
   #     - PUID=568
   #     - PGID=568
-  #     - TZ=Europe/Bucharest
+  #     - TZ=${HOMELAB_TIMEZONE:-}
   #   volumes:
   #     - /mnt/mainpool/configs/recyclarr:/config
   #   restart: unless-stopped

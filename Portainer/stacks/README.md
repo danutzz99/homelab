@@ -27,7 +27,9 @@ Deployment-specific values are left blank in the templates and filled in through
 Portainer, Vault, or the runtime environment.
 
 Important runtime variables include AirVPN WireGuard values for Gluetun,
-Cloudflare values for Cloudflared/DDNS, Dockpeek credentials, the MediaManager
-Postgres password, Watchtower notification URL, and the Capacitarr JWT secret.
+Cloudflare values for Cloudflared/DDNS, Dockpeek credentials and Docker host
+display name, the MediaManager Postgres password, Watchtower notification
+settings, the Capacitarr JWT secret, and the redacted `HOMELAB_TIMEZONE` value
+used by container `TZ` settings.
 
 See [../../docs/secrets-policy.md](../../docs/secrets-policy.md).

@@ -33,7 +33,7 @@ services:
       - SECRET_KEY=${DOCKPEEK_SECRET_KEY:-}
       - USERNAME=${DOCKPEEK_USERNAME:-}
       - PASSWORD=${DOCKPEEK_PASSWORD:-}
-      - DOCKER_HOST_NAME=${DOCKPEEK_DOCKER_HOST_NAME:-truenas}
+      - DOCKER_HOST_NAME=${DOCKPEEK_DOCKER_HOST_NAME:-}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 

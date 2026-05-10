@@ -54,7 +54,7 @@ def wake_on_lan():
         import json
         data = json.dumps({
             "embeds": [{
-                "title": "🔆 Wake-on-LAN Triggered",
+                "title": "Wake-on-LAN Triggered",
                 "description": f"WOL packet sent to Proxmox ({PROXMOX_MAC})",
                 "color": 16776960,
                 "timestamp": datetime.utcnow().isoformat()

@@ -36,7 +36,7 @@ services:
     image: ghcr.io/ghent/capacitarr:stable
     container_name: capacitarr
     environment:
-      - TZ=Europe/Bucharest
+      - TZ=${HOMELAB_TIMEZONE:-}
       - PUID=568
       - PGID=568
       - JWT_SECRET=${CAPACITARR_JWT_SECRET:-}
