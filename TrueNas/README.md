@@ -21,10 +21,6 @@ custom app and uses the local Docker socket to manage the repo-defined stacks.
 The stacks keep long-lived app data under `/mnt/mainpool/configs/<service>` and
 media data under `/mnt/mainpool/media`.
 
-Some apps are installed through the TrueNAS catalog instead of the custom
-Portainer stacks. Those apps are documented separately when their lifecycle is
-managed by TrueNAS Apps.
-
 The Docker side is split into focused stacks:
 
 - The Servarr stack handles media automation and download routing.
@@ -65,8 +61,7 @@ The Docker side is split into focused stacks:
 | Deunhealth | Docker health monitoring |
 | Watchtower | Scheduled container update checks |
 
-See [capacitarr.md](capacitarr.md) for the Capacitarr deployment notes,
-compose excerpt, and safety settings.
+See [capacitarr.md](capacitarr.md) for Capacitarr-specific safety notes.
 
 ## Tools Stack Services
 
@@ -80,10 +75,6 @@ compose excerpt, and safety settings.
 | HarborGuard | Docker image vulnerability scanning and security reporting |
 | NextExplorer | File explorer for browsing `/mnt/mainpool` |
 
-The Tools stack uses host ports that avoid conflicts with the media stack and
-with each other. For example, ComposeToolbox uses `3000:3000`, while
-NextExplorer uses `3001:3000` because it also listens on container port `3000`.
-
 Dockpeek and HarborGuard mount `/var/run/docker.sock`. That gives them powerful
 visibility into Docker and should be treated as administrative access.
 
@@ -96,9 +87,8 @@ visibility into Docker and should be treated as administrative access.
 
 ## Secrets
 
-The stack files intentionally contain placeholders or empty values for secrets.
-Live values should be injected through Portainer, Vault, or the runtime
-environment.
+The stack files intentionally contain placeholders or environment variable names
+for secrets. Live values should be injected through Portainer, Vault, or the
+runtime environment.
 
-See [../docs/secrets-policy.md](../docs/secrets-policy.md) for safe
-documentation guidance.
+See [../docs/secrets-policy.md](../docs/secrets-policy.md).

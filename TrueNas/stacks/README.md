@@ -25,16 +25,13 @@ The stacks are separated by responsibility:
 - `tools-stack.yaml` is for operational tools and inspection dashboards.
 - `nginx-ddns.yaml` is for edge routing and DNS automation.
 
-This split keeps the high-risk Docker-socket tools out of the regular media
-automation stack and makes it easier to update or redeploy one responsibility
-area without touching the others.
+This split keeps Docker-socket tools out of the regular media automation stack
+and makes each responsibility area easier to redeploy independently.
 
 ## Runtime Configuration
 
 Runtime-specific values are left blank or represented by environment variable
 names.
-
-Common runtime variables:
 
 | Variable | Used by |
 |----------|---------|
@@ -55,6 +52,3 @@ Common runtime variables:
 
 See [../../docs/service-catalog.md](../../docs/service-catalog.md) for the full
 service table.
-
-For the Capacitarr service shape, safety notes, and a standalone compose
-excerpt, see [../capacitarr.md](../capacitarr.md).

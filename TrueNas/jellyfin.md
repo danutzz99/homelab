@@ -1,8 +1,8 @@
 # Jellyfin
 
-Jellyfin is deployed from the TrueNAS catalog as an additional media server. It
-is managed by the TrueNAS Apps lifecycle rather than the custom Portainer stack
-templates.
+Jellyfin is deployed from the TrueNAS catalog as a media server and streaming
+endpoint. It is managed by the TrueNAS Apps lifecycle rather than the custom
+Portainer stack templates.
 
 ## Status
 
@@ -14,6 +14,13 @@ templates.
 | Default HTTP port | `8096` |
 | Default HTTPS port | `8920` |
 
+## How It Fits
+
+Jellyfin reads media from the TrueNAS storage side and serves it to local or
+approved remote clients. It is separate from the Portainer media automation
+stack, so app lifecycle actions happen through TrueNAS Apps rather than the
+Compose templates in `TrueNas/stacks/`.
+
 ## Access
 
 Local access uses the TrueNAS host address and the Jellyfin HTTP port:
@@ -22,10 +29,9 @@ Local access uses the TrueNAS host address and the Jellyfin HTTP port:
 http://<truenas-host>:8096
 ```
 
-Do not store real user passwords, API keys, or live access tokens in this
-repository.
+Do not store real user passwords, API keys, or access tokens in this repository.
 
-## API Key
+## API Keys
 
 Create Jellyfin API keys from the Jellyfin dashboard only when an integration
 needs one:
@@ -34,10 +40,4 @@ needs one:
 Dashboard -> Advanced -> API Keys
 ```
 
-Treat API keys like passwords.
-
-## Notes
-
-- Jellyfin's local discovery traffic is for local networks only.
-- If a TrueNAS catalog update changes app ports or routing, update this document
-  with placeholders only.
+Treat API keys like passwords and store live values outside the repo.

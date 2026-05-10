@@ -46,13 +46,6 @@ HoneyAuth runs in the Automation LXC as a lightweight application gate for
 protected services. It can sit in front of selected apps through the reverse
 proxy auth-request pattern.
 
-Role:
-
-- Check whether a request already has a valid authentication cookie.
-- Send unauthenticated users to a login page.
-- Alert on invalid login attempts.
-- Optionally request edge-level blocks through the configured provider API.
-
 Runtime values such as users, password hashes, session keys, allowed networks,
 notification endpoints, and API tokens are provided by the deployment
 environment.
@@ -61,8 +54,6 @@ environment.
 
 Some TrueNAS-hosted containers mount the Docker socket so they can inspect or
 manage Docker state.
-
-Tracked Docker-socket services:
 
 | Service | Why it needs Docker visibility |
 |---------|--------------------------------|
@@ -75,29 +66,9 @@ Access to these tools should be treated as administrative access to the Docker
 host. Keep them on trusted networks, protect their credentials, and avoid
 exposing them directly to the public internet.
 
-## HoneyAuth
-
-HoneyAuth runs in the Automation LXC as a lightweight application gate for
-protected services. It can sit in front of selected apps through the reverse
-proxy auth-request pattern.
-
-Role:
-
-- Check whether a request already has a valid authentication cookie.
-- Send unauthenticated users to a login page.
-- Alert on invalid login attempts.
-- Optionally request edge-level blocks through the configured provider API.
-
-Runtime values such as users, password hashes, session keys, allowed networks,
-notification endpoints, and API tokens are provided by the deployment
-environment.
-
 ## Edge And Application Protection
 
-Documented protections include:
-
-- Tunnel and reverse proxy for external access.
-- Fail2Ban-style jail blocking for Nextcloud.
-- Notification alerting for operational visibility.
-- Strong passwords and two-factor authentication for user-facing services.
-- Docker-socket tools separated into clearly documented operational stacks.
+Documented protections include tunnel and reverse proxy access, Fail2Ban-style
+jail blocking for Nextcloud, notification alerting, strong passwords, two-factor
+authentication for user-facing services, and clear boundaries around Docker
+socket tools.

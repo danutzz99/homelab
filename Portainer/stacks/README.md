@@ -5,14 +5,13 @@ stack definitions and should be kept synchronized with `../../TrueNas/stacks/`.
 
 | File | Purpose | Mirror |
 |------|---------|--------|
-| [main-stack.yaml](main-stack.yaml) | Servarr/media automation stack, including Watchtower | `../../TrueNas/stacks/main-stack.yaml` |
+| [main-stack.yaml](main-stack.yaml) | Servarr/media automation stack, including Watchtower and Capacitarr | `../../TrueNas/stacks/main-stack.yaml` |
 | [tools-stack.yaml](tools-stack.yaml) | Operational tools, file explorer, vulnerability scanner, and MediaManager | `../../TrueNas/stacks/tools-stack.yaml` |
 | [nginx-ddns.yaml](nginx-ddns.yaml) | Nginx Proxy Manager and Cloudflare DDNS | `../../TrueNas/stacks/nginx-ddns.yaml` |
 
 ## How The Stacks Are Used
 
-Portainer deploys each stack as a separate Compose project. The separation is
-intentional:
+Portainer deploys each stack as a separate Compose project:
 
 - The media stack contains the automation chain and the VPN-routed download
   client.
@@ -31,5 +30,4 @@ Important runtime variables include AirVPN WireGuard values for Gluetun,
 Cloudflare values for Cloudflared/DDNS, Dockpeek credentials, the MediaManager
 Postgres password, Watchtower notification URL, and the Capacitarr JWT secret.
 
-See [../../docs/secrets-policy.md](../../docs/secrets-policy.md) for safe
-documentation guidance.
+See [../../docs/secrets-policy.md](../../docs/secrets-policy.md).
