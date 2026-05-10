@@ -7,10 +7,10 @@ This folder is the main navigation layer for the homelab repository.
 | Document | Purpose |
 |----------|---------|
 | [current-setup.md](current-setup.md) | Explains the current server topology and how the major systems relate |
-| [service-catalog.md](service-catalog.md) | Lists tracked services, ports, storage paths, and where they are defined |
+| [service-catalog.md](service-catalog.md) | Lists tracked services, ports, storage paths, stack roles, and where they are defined |
 | [repository-map.md](repository-map.md) | Gives a file-by-file guide to the repository |
 | [secrets-policy.md](secrets-policy.md) | Safety advice for documenting without storing live values |
-| [operations.md](operations.md) | Explains boot, shutdown, Vault, Wake-on-LAN, and notification flows |
+| [operations.md](operations.md) | Explains boot, shutdown, Docker stack, Vault, Wake-on-LAN, and notification flows |
 
 ## Reading Order
 

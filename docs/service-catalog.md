@@ -10,6 +10,7 @@ This catalog lists the homelab components described in the repository.
 | TrueNAS Scale | VM | Storage and Docker host | `Infrastructure/README.md`, `TrueNas/` |
 | Portainer | TrueNAS custom app | Docker stack management | `TrueNas/README.md`, `Portainer/stacks/` |
 | Plex | VM | Media streaming from TrueNAS media storage with GPU support | `README.md`, `Infrastructure/README.md` |
+| Jellyfin | TrueNAS catalog app | Media streaming from TrueNAS storage | `TrueNas/jellyfin.md` |
 | Nextcloud | LXC | Private cloud and file sharing with database, cache, and ban protection | `README.md`, `docs/current-setup.md` |
 | Vault | Automation LXC | Secret storage | `Security/README.md`, `Scripts/lxc-automation/` |
 | HoneyAuth | Automation LXC | Lightweight auth gate and honeypot-style alerting for protected apps | `Security/README.md`, `Scripts/lxc-automation/` |
@@ -41,6 +42,7 @@ Defined in `TrueNas/stacks/main-stack.yaml` and mirrored in
 | `profilarr` | `santiagosayshey/profilarr:latest` | Profile sync | `6868` |
 | `cloudflared` | `cloudflare/cloudflared:latest` | Cloudflare tunnel client | none exposed |
 | `overseerr` | `lscr.io/linuxserver/overseerr:latest` | Media requests | `5055` |
+| `capacitarr` | `ghcr.io/ghent/capacitarr:stable` | Media capacity manager with scoring, rules, and approval safety | `2187` |
 | `watchtower` | `nickfedor/watchtower` | Scheduled container update checks in the Servarr/media stack | none exposed |
 
 Shared media stack paths:
@@ -62,6 +64,77 @@ Watchtower note:
 - It may appear as `exited code 0` after a successful scheduled run.
 - Notification settings are provided by the runtime environment.
 
+Capacitarr note:
+
+- Capacitarr is documented in [TrueNas/capacitarr.md](../TrueNas/capacitarr.md).
+- It should remain in dry-run or approval-oriented operation until scoring and
+  keep/delete rules have been reviewed against real audit results.
+- Runtime API keys, Plex tokens, and the JWT secret stay outside the repo.
+
+How the media stack fits together:
+
+- Gluetun is the VPN gateway.
+- qBittorrent shares Gluetun's network namespace, so its WebUI and torrent ports
+  are published on Gluetun.
+- Prowlarr coordinates indexers for Sonarr and Radarr.
+- Sonarr and Radarr organize media requests and hand downloads to qBittorrent.
+- Bazarr adds subtitle automation.
+- Overseerr provides the request interface.
+- Capacitarr helps decide what media can be cleaned up safely.
+- Watchtower handles scheduled update checks for containers in this stack.
+
+## Tools Stack
+
+Defined in `TrueNas/stacks/tools-stack.yaml` and mirrored in
+`Portainer/stacks/tools-stack.yaml`.
+
+| Service | Image | Role | Ports |
+|---------|-------|------|-------|
+| `composetoolbox` | `ghcr.io/bluegoosemedia/composetoolbox` | Browser-based helper for Compose stack work | `3000:3000` |
+| `tracktor` | `ghcr.io/javedh-dev/tracktor:latest` | Lightweight app/dashboard data service | `3333:3000` |
+| `dockpeek` | `dockpeek/dockpeek:latest` | Docker container visibility through the Docker socket | `3420:8000` |
+| `mediamanager` | `ghcr.io/maxdorninger/mediamanager/mediamanager:latest` | Media library manager and inspection UI | `8000:8000` |
+| `mediamanager_postgres` | `postgres:17` | Database for MediaManager | none exposed |
+| `hb` | `ghcr.io/harborguard/harborguard:latest` | Docker image vulnerability scanner | `2998:8080` |
+| `nextexplorer` | `nxzai/explorer:latest` | File explorer for the main pool | `3001:3000` |
+
+Tools stack paths:
+
+| Host path | Container path | Used by |
+|-----------|----------------|---------|
+| `./composetoolbox/data` | `/app/data` | ComposeToolbox |
+| `/mnt/mainpool/configs/tracktor` | `/data` | Tracktor |
+| `/mnt/mainpool/configs/mediamanager/app` | `/app/config` | MediaManager app config |
+| `/mnt/mainpool/configs/mediamanager/images` | `/data/images` | MediaManager generated image/cache data |
+| `/mnt/mainpool/configs/mediamanager/postgres` | `/var/lib/postgresql/data` | MediaManager Postgres |
+| `/mnt/mainpool/configs/nextexplorer/config` | `/config` | NextExplorer config |
+| `./cache` | `/cache` | NextExplorer cache |
+| `/mnt/mainpool` | `/mnt/mainpool` | NextExplorer file browsing |
+| `/var/run/docker.sock` | `/var/run/docker.sock` | Dockpeek and HarborGuard |
+
+How the tools stack fits together:
+
+- ComposeToolbox and NextExplorer both listen on container port `3000`, so
+  NextExplorer is published on host port `3001`.
+- Tracktor also listens on container port `3000`, so it is published on host
+  port `3333`.
+- HarborGuard listens on container port `8080`, but host port `8080` is already
+  used by qBittorrent through Gluetun. It is published as `2998:8080`.
+- MediaManager depends on the `db` service healthcheck before starting.
+- MediaManager keeps app config and Postgres data in separate host folders so
+  app-level permission fixes do not alter database ownership.
+- Dockpeek and HarborGuard use the Docker socket, so they are administrative
+  tools and should only be reachable from trusted networks.
+
+## TrueNAS Catalog Apps
+
+| App | Role | Ports | Tracked in |
+|-----|------|-------|------------|
+| Jellyfin | Media server and client streaming endpoint | `8096`, `8920` | `TrueNas/jellyfin.md` |
+
+Jellyfin is managed by the TrueNAS Apps/catalog lifecycle, not by the custom
+Portainer stack templates.
+
 ## Proxy And DNS Stack
 
 Defined in `TrueNas/stacks/nginx-ddns.yaml` and mirrored in
@@ -74,6 +147,16 @@ Defined in `TrueNas/stacks/nginx-ddns.yaml` and mirrored in
 
 Cloudflare DDNS is configured to run as user `568:568`, read-only, with all
 capabilities dropped and `no-new-privileges` enabled.
+
+How the proxy/DDNS stack fits together:
+
+- Nginx Proxy Manager provides the reverse proxy UI and certificate management.
+- It uses custom host ports: `8081` for HTTP, `8443` for HTTPS, and `8181` for
+  the admin UI.
+- Cloudflare DDNS updates DNS records through a runtime-provided Cloudflare API
+  token and domain list.
+- DDNS has no published port because it only needs outbound access to
+  Cloudflare.
 
 ## n8n Mail Classifier
 

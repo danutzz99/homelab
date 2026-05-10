@@ -21,6 +21,13 @@ Automation LXC starts
 n8n LXC starts
   |
   `-- systemd starts the Node-based n8n service with runtime settings from the LXC
+
+TrueNAS Docker side starts
+  |
+  |-- Portainer manages the Compose stacks
+  |-- Servarr/media stack starts media automation and VPN-routed downloads
+  |-- Tools stack starts operational dashboards and scanners
+  `-- Proxy/DDNS stack starts reverse proxy and DNS update services
 ```
 
 Tracked files:
@@ -144,6 +151,36 @@ Optional companion workflows:
 
 This section explains the workflow behavior at a high level.
 
+## TrueNAS Docker Stack Flow
+
+The TrueNAS Docker side is split into three Portainer-managed stacks.
+
+```text
+TrueNAS Scale
+  |
+  |-- Servarr/media stack
+  |     |-- Gluetun creates the AirVPN WireGuard network path
+  |     |-- qBittorrent shares Gluetun's network namespace
+  |     |-- Servarr apps organize and request media
+  |     |-- Capacitarr evaluates media cleanup candidates
+  |     `-- Watchtower checks container updates on schedule
+  |
+  |-- Tools stack
+  |     |-- ComposeToolbox supports stack editing
+  |     |-- Dockpeek reads Docker state
+  |     |-- HarborGuard scans Docker images
+  |     |-- MediaManager uses Postgres and the media dataset
+  |     `-- NextExplorer browses the main pool
+  |
+  `-- Proxy/DDNS stack
+        |-- Nginx Proxy Manager provides proxy and certificate management
+        `-- Cloudflare DDNS updates DNS records
+```
+
+The stack split is operationally useful because each responsibility area can be
+redeployed without touching the others. It also makes Docker-socket tools easier
+to identify and protect.
+
 ## Watchtower
 
 Watchtower is part of the tracked Servarr/media stack on the TrueNAS Docker
@@ -184,5 +221,7 @@ The repo uses a consistent notification pattern:
 
 - Keep `TrueNas/stacks/` and `Portainer/stacks/` synchronized when service
   definitions change.
+- Treat Dockpeek, HarborGuard, Watchtower, and Deunhealth as privileged
+  operational tools because they mount the Docker socket.
 - If the duplicated Gogu bot files remain, update both copies together.
 - Keep the Proxmox power-cycle overview aligned with the current RTC behavior.

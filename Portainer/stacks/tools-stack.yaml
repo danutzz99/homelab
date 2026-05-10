@@ -1,0 +1,98 @@
+services:
+  composetoolbox:
+    image: ghcr.io/bluegoosemedia/composetoolbox
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+    volumes:
+      - ./composetoolbox/data:/app/data
+
+  tracktor:
+    image: ghcr.io/javedh-dev/tracktor:latest
+    container_name: tracktor
+    user: "568:568"
+    restart: unless-stopped
+    ports:
+      - "3333:3000"
+    volumes:
+      - /mnt/mainpool/configs/tracktor:/data
+    environment:
+      - TRACKTOR_DEMO_MODE=false
+      - FORCE_DATA_SEED=false
+      - CORS_ORIGINS=${TRACKTOR_CORS_ORIGINS:-}
+
+  dockpeek:
+    image: dockpeek/dockpeek:latest
+    container_name: dockpeek
+    restart: unless-stopped
+    ports:
+      - "3420:8000"
+    environment:
+      - SECRET_KEY=${DOCKPEEK_SECRET_KEY:-}
+      - USERNAME=${DOCKPEEK_USERNAME:-}
+      - PASSWORD=${DOCKPEEK_PASSWORD:-}
+      - DOCKER_HOST_NAME=${DOCKPEEK_DOCKER_HOST_NAME:-truenas}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  mediamanager:
+    image: ghcr.io/maxdorninger/mediamanager/mediamanager:latest
+    container_name: mediamanager
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - CONFIG_DIR=/app/config
+    volumes:
+      - /mnt/mainpool/media:/data
+      - /mnt/mainpool/configs/mediamanager/app:/app/config
+      - /mnt/mainpool/configs/mediamanager/images:/data/images
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    container_name: mediamanager_postgres
+    image: postgres:17
+    restart: unless-stopped
+    volumes:
+      - /mnt/mainpool/configs/mediamanager/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    environment:
+      - POSTGRES_USER=MediaManager
+      - POSTGRES_DB=MediaManager
+      - POSTGRES_PASSWORD=${MEDIAMANAGER_POSTGRES_PASSWORD:-}
+
+  hb:
+    image: ghcr.io/harborguard/harborguard:latest
+    restart: unless-stopped
+    ports:
+      - "2998:8080"
+    environment:
+      - PORT=8080
+      - MAX_CONCURRENT_SCANS=5
+      - LOG_LEVEL=info
+      - HEALTH_CHECK_ENABLED=true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  nextexplorer:
+    image: nxzai/explorer:latest
+    container_name: nextexplorer
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    environment:
+      - NODE_ENV=production
+      - PUID=568
+      - PGID=568
+    volumes:
+      - /mnt/mainpool/configs/nextexplorer/config:/config
+      - ./cache:/cache
+      - /mnt/mainpool:/mnt/mainpool

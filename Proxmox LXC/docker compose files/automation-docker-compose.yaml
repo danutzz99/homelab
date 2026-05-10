@@ -1,0 +1,51 @@
+services:
+  vault:
+    image: hashicorp/vault:1.15
+    container_name: vault
+    restart: unless-stopped
+    cap_add: [IPC_LOCK]
+    security_opt:
+      - apparmor:unconfined
+    ports: ["8200:8200"]
+    environment:
+      - VAULT_ADDR=
+    command: sh -c "exec vault server -config=/vault/config/vault.hcl"
+    volumes:
+      - /mnt/configs/vault/data:/vault/data
+      - /mnt/configs/vault/config:/vault/config
+
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: n8n
+    profiles: ["disabled"]
+    restart: "no"
+    user: "568:568"
+    depends_on: [vault]
+    security_opt:
+      - apparmor:unconfined
+    ports: ["5678:5678"]
+    environment:
+      - N8N_HOST=0.0.0.0
+      - N8N_PORT=5678
+      - N8N_USER_FOLDER=/home/node/.n8n
+      - WEBHOOK_URL=
+      - TZ=Europe/Bucharest
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=admin
+      - N8N_BASIC_AUTH_PASSWORD={}
+    volumes:
+      - /mnt/configs/n8n:/home/node/.n8n
+
+  tautulli:
+    image: lscr.io/linuxserver/tautulli:latest
+    container_name: tautulli
+    restart: unless-stopped
+    security_opt:
+      - apparmor:unconfined
+    environment:
+      - PUID=568
+      - PGID=568
+      - TZ=Europe/Bucharest
+    ports: ["8181:8181"]
+    volumes:
+      - /mnt/configs/tautulli:/config

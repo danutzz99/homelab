@@ -22,8 +22,9 @@ Examples:
 
 ```yaml
 environment:
-  TUNNEL_TOKEN: ""
+  CLOUDFLARED_TUNNEL_TOKEN: ""
   CLOUDFLARE_API_TOKEN: ""
+  MEDIAMANAGER_POSTGRES_PASSWORD: ""
 ```
 
 ```text
@@ -44,6 +45,8 @@ These values belong only in the live environment:
 | Webhook URLs | Notification endpoints with real IDs or secrets |
 | Authentication values | Passwords, passphrases, cookies, session secrets |
 | VPN credentials | WireGuard private keys, preshared keys, assigned addresses |
+| Database credentials | Postgres passwords, app database passwords |
+| Docker admin tool credentials | Dockpeek usernames/passwords, HarborGuard secrets if added |
 | OAuth values | Refresh tokens, client secrets, credential IDs or names |
 | Live network identifiers | Public/private IPs, MAC addresses, hostnames, SSH usernames |
 | Hardware identifiers | Disk serials, machine IDs, UUIDs |
