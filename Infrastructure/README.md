@@ -42,6 +42,14 @@ Proxmox is the physical host and hypervisor.
 TrueNAS Scale acts as the NAS and Docker host. Portainer is deployed as a custom
 app inside TrueNAS Scale and manages the tracked stacks.
 
+The Docker workload is grouped by responsibility:
+
+| Stack | Purpose |
+|-------|---------|
+| Servarr/media | VPN-routed downloads, media automation, requests, Capacitarr, Cloudflared, and Watchtower |
+| Tools | ComposeToolbox, Tracktor, Dockpeek, MediaManager, HarborGuard, and NextExplorer |
+| Proxy/DDNS | Nginx Proxy Manager and Cloudflare DDNS |
+
 ### Storage Layout
 
 | Path | Purpose |
@@ -64,6 +72,7 @@ Most containers mount configuration from `/mnt/mainpool/configs/<service>`.
 | Path | Purpose |
 |------|---------|
 | `../TrueNas/stacks/main-stack.yaml` | Media automation stack |
+| `../TrueNas/stacks/tools-stack.yaml` | Operational tools stack |
 | `../TrueNas/stacks/nginx-ddns.yaml` | Reverse proxy and DDNS stack |
 | `../Scripts/proxmox/` | Proxmox lifecycle notification scripts |
 | `../Scripts/lxc-automation/` | Automation LXC boot helpers |

@@ -33,12 +33,16 @@ for.
 | Path | Purpose |
 |------|---------|
 | `TrueNas/README.md` | TrueNAS role and stack overview |
+| `TrueNas/capacitarr.md` | Capacitarr deployment, compose excerpt, scoring profile, and safety notes |
+| `TrueNas/jellyfin.md` | Jellyfin catalog app deployment and access notes |
 | `TrueNas/stacks/README.md` | Stack index for TrueNAS-hosted Compose files |
 | `TrueNas/stacks/main-stack.yaml` | Expanded media stack Compose file |
+| `TrueNas/stacks/tools-stack.yaml` | Operational tools stack Compose file |
 | `TrueNas/stacks/nginx-ddns.yaml` | Proxy and Cloudflare DDNS Compose file |
 | `Portainer/stacks/README.md` | Portainer template index |
-| `Portainer/stacks/main-stack.yaml` | Compact media stack template mirror |
-| `Portainer/stacks/nginx-ddns.yaml` | Compact proxy/DDNS stack template mirror |
+| `Portainer/stacks/main-stack.yaml` | Portainer-ready media stack template mirror |
+| `Portainer/stacks/tools-stack.yaml` | Portainer-ready tools stack template mirror |
+| `Portainer/stacks/nginx-ddns.yaml` | Portainer-ready proxy/DDNS stack template mirror |
 
 ## Automation
 

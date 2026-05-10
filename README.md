@@ -18,10 +18,13 @@ variable names.
 [![Proxmox](https://img.shields.io/badge/Proxmox-Host-e57000?style=for-the-badge&logo=proxmox&logoColor=white)](docs/current-setup.md#proxmox-host)
 [![TrueNAS](https://img.shields.io/badge/TrueNAS-Storage-0095d5?style=for-the-badge&logo=truenas&logoColor=white)](docs/current-setup.md#truenas-scale-vm)
 [![Plex](https://img.shields.io/badge/Plex-Media-e5a00d?style=for-the-badge&logo=plex&logoColor=black)](Infrastructure/README.md#plex-vm-optimization)
+[![Jellyfin](https://img.shields.io/badge/Jellyfin-Media_Server-00a4dc?style=for-the-badge&logo=jellyfin&logoColor=white)](TrueNas/jellyfin.md)
+[![Capacitarr](https://img.shields.io/badge/Capacitarr-Capacity_Manager-7c3aed?style=for-the-badge)](TrueNas/capacitarr.md)
+[![Portainer](https://img.shields.io/badge/Portainer-Stacks-13bef9?style=for-the-badge&logo=portainer&logoColor=white)](Portainer/stacks/README.md)
 [![Nextcloud](https://img.shields.io/badge/Nextcloud-Cloud-0082c9?style=for-the-badge&logo=nextcloud&logoColor=white)](docs/current-setup.md#nextcloud-lxc)
 [![n8n](https://img.shields.io/badge/n8n-Automation-ea4b71?style=for-the-badge&logo=n8n&logoColor=white)](docs/current-setup.md#n8n-lxc)
 [![Vault](https://img.shields.io/badge/Vault-Secrets-000000?style=for-the-badge&logo=vault&logoColor=white)](Security/README.md#hashicorp-vault)
-[![Cloudflare](https://img.shields.io/badge/Cloudflare-Tunnel_FDNS-f38020?style=for-the-badge&logo=cloudflare&logoColor=white)](Security/README.md#cloudflare)
+[![Cloudflare](https://img.shields.io/badge/Cloudflare-Tunnel_DDNS-f38020?style=for-the-badge&logo=cloudflare&logoColor=white)](Security/README.md#cloudflare)
 
 | Need | Open |
 |------|------|
@@ -29,7 +32,14 @@ variable names.
 | Find every tracked service | [Service catalog](docs/service-catalog.md) |
 | Understand each folder and file | [Repository map](docs/repository-map.md) |
 | Keep docs useful without leaking private values | [Safety advice](docs/secrets-policy.md) |
-| Follow boot, shutdown, Vault, and alert flows | [Operations](docs/operations.md) |
+| Follow boot, shutdown, Docker stack, Vault, and alert flows | [Operations](docs/operations.md) |
+
+## Useful Outside References
+
+| Resource | Why it is useful |
+|----------|------------------|
+| [Proxmox VE Community Scripts](https://community-scripts.org/) | Community-maintained helper scripts for creating and configuring common Proxmox LXCs and VMs |
+| [Servers@Home Wiki](https://wiki.serversatho.me/) | Practical ideas and instructions for common Docker apps and TrueNAS Scale setups |
 
 ## Useful Outside References
 
@@ -43,8 +53,11 @@ variable names.
 | Area | Status | What to know first |
 |------|--------|--------------------|
 | Main host | Active | Proxmox VE runs the VMs, LXCs, and current RTC wake schedule |
-| Storage and Docker | Active | TrueNAS Scale provides storage and hosts Portainer-managed stacks |
-| Servarr/media stack | Active | Media automation stack includes Gluetun, qBittorrent, Servarr apps, Cloudflared, Overseerr, and Watchtower |
+| Storage and Docker | Active | TrueNAS Scale provides storage, Portainer-managed stacks, and catalog apps |
+| Servarr/media stack | Active | Media automation stack includes Gluetun, qBittorrent, Servarr apps, Cloudflared, Overseerr, Capacitarr, and Watchtower |
+| Tools stack | Active | Operational tools include ComposeToolbox, Tracktor, Dockpeek, MediaManager, HarborGuard, and NextExplorer |
+| Proxy/DDNS stack | Active | Nginx Proxy Manager handles reverse proxy management; Cloudflare DDNS updates proxied DNS records |
+| Jellyfin | Active | TrueNAS catalog app for media streaming |
 | Watchtower | Configurable schedule | Container updater in the Servarr/media stack; it may show `exited code 0` after a successful scheduled run |
 | Automation LXC | Active | Vault, Tautulli, and HoneyAuth are documented here |
 | n8n LXC | Active | Dedicated workflow container; mail-classifier material is documented in `Automation/` |
@@ -56,7 +69,7 @@ variable names.
 | Layer | Component | Current role |
 |-------|-----------|--------------|
 | Hypervisor | Proxmox VE | Runs the homelab VMs and LXCs |
-| NAS VM | TrueNAS Scale | Hosts storage and Docker/Portainer-managed stacks |
+| NAS VM | TrueNAS Scale | Hosts storage, Docker/Portainer-managed stacks, and catalog apps |
 | Media VM | Plex | Media streaming with GPU passthrough |
 | Automation LXC | Vault, Tautulli, HoneyAuth | Secrets, monitoring, and lightweight app protection |
 | n8n LXC | n8n | Workflow automation |
@@ -81,8 +94,11 @@ homelab/
 
 - `TrueNas/stacks/` contains the main Docker Compose stack definitions used by
   the TrueNAS/Portainer side of the setup.
-- `Portainer/stacks/` contains compact Portainer-oriented stack templates that
-  mirror the same services.
+- `TrueNas/stacks/main-stack.yaml` is the Servarr/media automation stack.
+- `TrueNas/stacks/tools-stack.yaml` is the operational tools stack.
+- `TrueNas/stacks/nginx-ddns.yaml` is the reverse proxy and DDNS stack.
+- `Portainer/stacks/` contains Portainer-ready templates that mirror the same
+  services.
 - `Automation/n8n-mail-classifier/` explains the mail-classifier workflow.
 - `Scripts/` contains operational script areas for Proxmox, LXCs, and the
   Raspberry Pi control plane.
@@ -97,11 +113,17 @@ what belongs in the repo and what stays in the live environment.
 
 ## Quick Mental Model
 
-Proxmox runs the server layer. TrueNAS provides storage and runs the media/proxy
-containers through Portainer. Watchtower belongs to the Servarr/media stack and
-can run on a configured schedule, so an `exited code 0` status can mean the last
-scheduled run finished cleanly. Vault, Tautulli, and HoneyAuth live in the
-Automation LXC, while n8n runs from its own LXC. The Raspberry Pi control plane
-is temporarily disabled, so the current automatic wake path is the Proxmox RTC
-schedule. Manual remote wake would need an always-on control host before it can
-work independently of Proxmox.
+Proxmox runs the server layer. TrueNAS provides storage and runs three
+Portainer-managed stack groups: the Servarr/media stack, the operational tools
+stack, and the proxy/DDNS stack. The media stack keeps downloads behind Gluetun,
+publishes qBittorrent through that VPN container, and connects the Servarr apps
+to the shared media dataset. The tools stack provides browser-based operations,
+file browsing, Docker visibility, image scanning, and MediaManager. The
+proxy/DDNS stack handles Nginx Proxy Manager and Cloudflare DNS updates.
+Capacitarr watches the media library from the TrueNAS side and keeps cleanup
+decisions gated by scoring, rules, and safety settings. Watchtower belongs to
+the Servarr/media stack and can run on a configured schedule, so an `exited code
+0` status can mean the last scheduled run finished cleanly. Vault, Tautulli, and
+HoneyAuth live in the Automation LXC, while n8n runs from its own LXC. The
+Raspberry Pi control plane is temporarily disabled, so the current automatic
+wake path is the Proxmox RTC schedule.

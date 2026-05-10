@@ -5,7 +5,8 @@ of the homelab.
 
 | File | Purpose |
 |------|---------|
-| [main-stack.yaml](main-stack.yaml) | Servarr/media automation, VPN, downloads, tunnel, request services, and Watchtower |
+| [main-stack.yaml](main-stack.yaml) | Servarr/media automation, Capacitarr, VPN, downloads, tunnel, request services, and Watchtower |
+| [tools-stack.yaml](tools-stack.yaml) | ComposeToolbox, Tracktor, Dockpeek, MediaManager, HarborGuard, and NextExplorer |
 | [nginx-ddns.yaml](nginx-ddns.yaml) | Nginx Proxy Manager and Cloudflare DDNS |
 
 ## Storage Convention
@@ -14,11 +15,46 @@ of the homelab.
 |-----------|---------|
 | `/mnt/mainpool/configs/<service>` | Persistent service configuration |
 | `/mnt/mainpool/media` | Shared media dataset |
+| `/mnt/mainpool` | Root dataset exposed to selected file-management tools |
+
+## Stack Model
+
+The stacks are separated by responsibility:
+
+- `main-stack.yaml` is for media automation and VPN-protected downloads.
+- `tools-stack.yaml` is for operational tools and inspection dashboards.
+- `nginx-ddns.yaml` is for edge routing and DNS automation.
+
+This split keeps the high-risk Docker-socket tools out of the regular media
+automation stack and makes it easier to update or redeploy one responsibility
+area without touching the others.
 
 ## Runtime Configuration
 
 Runtime-specific values are left blank or represented by environment variable
 names.
 
+Common runtime variables:
+
+| Variable | Used by |
+|----------|---------|
+| `AIRVPN_WIREGUARD_PRIVATE_KEY` | Gluetun |
+| `AIRVPN_WIREGUARD_PRESHARED_KEY` | Gluetun |
+| `AIRVPN_WIREGUARD_ADDRESSES` | Gluetun |
+| `AIRVPN_FORWARDED_PORTS` | Gluetun firewall input ports |
+| `QBITTORRENT_TORRENTING_PORT` | qBittorrent |
+| `CLOUDFLARED_TUNNEL_TOKEN` | Cloudflared |
+| `WATCHTOWER_NOTIFICATION_URL` | Watchtower notifications |
+| `CAPACITARR_JWT_SECRET` | Capacitarr |
+| `DOCKPEEK_SECRET_KEY` | Dockpeek |
+| `DOCKPEEK_USERNAME` | Dockpeek |
+| `DOCKPEEK_PASSWORD` | Dockpeek |
+| `MEDIAMANAGER_POSTGRES_PASSWORD` | MediaManager Postgres and app config |
+| `CLOUDFLARE_API_TOKEN` | Cloudflare DDNS |
+| `CLOUDFLARE_DDNS_DOMAINS` | Cloudflare DDNS |
+
 See [../../docs/service-catalog.md](../../docs/service-catalog.md) for the full
 service table.
+
+For the Capacitarr service shape, safety notes, and a standalone compose
+excerpt, see [../capacitarr.md](../capacitarr.md).

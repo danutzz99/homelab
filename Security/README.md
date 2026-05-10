@@ -36,9 +36,44 @@ Tracked components:
 
 Tracked placeholders:
 
-- `TUNNEL_TOKEN`
+- `CLOUDFLARED_TUNNEL_TOKEN` for the `TUNNEL_TOKEN` value consumed by Cloudflared
 - `CLOUDFLARE_API_TOKEN`
-- `DOMAINS`
+- `CLOUDFLARE_DDNS_DOMAINS`
+
+## HoneyAuth
+
+HoneyAuth runs in the Automation LXC as a lightweight application gate for
+protected services. It can sit in front of selected apps through the reverse
+proxy auth-request pattern.
+
+Role:
+
+- Check whether a request already has a valid authentication cookie.
+- Send unauthenticated users to a login page.
+- Alert on invalid login attempts.
+- Optionally request edge-level blocks through the configured provider API.
+
+Runtime values such as users, password hashes, session keys, allowed networks,
+notification endpoints, and API tokens are provided by the deployment
+environment.
+
+## Docker Socket Boundary
+
+Some TrueNAS-hosted containers mount the Docker socket so they can inspect or
+manage Docker state.
+
+Tracked Docker-socket services:
+
+| Service | Why it needs Docker visibility |
+|---------|--------------------------------|
+| Dockpeek | Shows Docker/container state in the Tools stack |
+| HarborGuard | Scans Docker images and reports vulnerability information |
+| Watchtower | Checks and recreates containers during update runs |
+| Deunhealth | Watches container health and can support restart behavior |
+
+Access to these tools should be treated as administrative access to the Docker
+host. Keep them on trusted networks, protect their credentials, and avoid
+exposing them directly to the public internet.
 
 ## HoneyAuth
 
@@ -65,3 +100,4 @@ Documented protections include:
 - Fail2Ban-style jail blocking for Nextcloud.
 - Notification alerting for operational visibility.
 - Strong passwords and two-factor authentication for user-facing services.
+- Docker-socket tools separated into clearly documented operational stacks.

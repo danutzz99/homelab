@@ -4,20 +4,21 @@ services:
   gluetun:
     image: qmcgaw/gluetun
     container_name: gluetun
-    cap_add: [NET_ADMIN]
-    devices: [/dev/net/tun:/dev/net/tun]
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
     environment:
       - VPN_SERVICE_PROVIDER=airvpn
       - VPN_TYPE=wireguard
-      - WIREGUARD_PRIVATE_KEY=
-      - WIREGUARD_PRESHARED_KEY=
-      - WIREGUARD_ADDRESSES=
-      - FIREWALL_VPN_INPUT_PORTS=
-      - TZ=
+      - WIREGUARD_PRIVATE_KEY=${AIRVPN_WIREGUARD_PRIVATE_KEY:-}
+      - WIREGUARD_PRESHARED_KEY=${AIRVPN_WIREGUARD_PRESHARED_KEY:-}
+      - WIREGUARD_ADDRESSES=${AIRVPN_WIREGUARD_ADDRESSES:-}
+      - FIREWALL_VPN_INPUT_PORTS=${AIRVPN_FORWARDED_PORTS:-}
     ports:
-      - 8080:8080
-      - 6881:6881
-      - 6881:6881/udp
+      - "8080:8080"
+      - "6881:6881"
+      - "6881:6881/udp"
     volumes:
       - /mnt/mainpool/configs/gluetun:/gluetun
     restart: unless-stopped
@@ -29,7 +30,7 @@ services:
     environment:
       - LOG_LEVEL=info
       - HEALTH_SERVER_ADDRESS=127.0.0.1:9999
-      - TZ=
+      - TZ=Europe/Bucharest
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     restart: always
@@ -41,21 +42,22 @@ services:
       - LOG_LEVEL=info
       - LOG_HTML=false
       - CAPTCHA_SOLVER=none
-      - TZ=
+      - TZ=Europe/Bucharest
     ports:
-      - 8191:8191
+      - "8191:8191"
     restart: unless-stopped
 
   qbittorrent:
     image: linuxserver/qbittorrent:latest
     container_name: qbittorrent
-    depends_on: [gluetun]
+    depends_on:
+      - gluetun
     environment:
       - PUID=568
       - PGID=568
-      - TZ=
+      - TZ=Europe/Bucharest
       - WEBUI_PORT=8080
-      - TORRENTING_PORT=
+      - TORRENTING_PORT=${QBITTORRENT_TORRENTING_PORT:-}
     network_mode: service:gluetun
     volumes:
       - /mnt/mainpool/configs/qbittorrent:/config
@@ -68,13 +70,13 @@ services:
     environment:
       - PUID=568
       - PGID=568
-      - TZ=
+      - TZ=Europe/Bucharest
     volumes:
       - /mnt/mainpool/configs/prowlarr:/config
       - /mnt/mainpool/media:/media
-    ports:
-      - 9696:9696
     restart: unless-stopped
+    ports:
+      - "9696:9696"
 
   sonarr:
     image: lscr.io/linuxserver/sonarr:latest
@@ -82,13 +84,13 @@ services:
     environment:
       - PUID=568
       - PGID=568
-      - TZ=
+      - TZ=Europe/Bucharest
     volumes:
       - /mnt/mainpool/configs/sonarr:/config
       - /mnt/mainpool/media:/media
-    ports:
-      - 8989:8989
     restart: unless-stopped
+    ports:
+      - "8989:8989"
 
   radarr:
     image: lscr.io/linuxserver/radarr:latest
@@ -96,13 +98,13 @@ services:
     environment:
       - PUID=568
       - PGID=568
-      - TZ=
+      - TZ=Europe/Bucharest
     volumes:
       - /mnt/mainpool/configs/radarr:/config
       - /mnt/mainpool/media:/media
-    ports:
-      - 7878:7878
     restart: unless-stopped
+    ports:
+      - "7878:7878"
 
   bazarr:
     image: lscr.io/linuxserver/bazarr:latest
@@ -110,31 +112,31 @@ services:
     environment:
       - PUID=568
       - PGID=568
-      - TZ=
+      - TZ=Europe/Bucharest
     volumes:
       - /mnt/mainpool/configs/bazarr:/config
       - /mnt/mainpool/media:/media
-    ports:
-      - 6767:6767
     restart: unless-stopped
+    ports:
+      - "6767:6767"
 
   profilarr:
     image: santiagosayshey/profilarr:latest
     container_name: profilarr
     environment:
-      - TZ=
+      - TZ=Europe/Bucharest
     volumes:
       - /mnt/mainpool/configs/profilarr:/config
-    ports:
-      - 6868:6868
     restart: unless-stopped
+    ports:
+      - "6868:6868"
 
   cloudflared:
     image: cloudflare/cloudflared:latest
     container_name: cloudflared
-    command: tunnel run
+    command: tunnel --protocol http2 run
     environment:
-      - TUNNEL_TOKEN=
+      - TUNNEL_TOKEN=${CLOUDFLARED_TUNNEL_TOKEN:-}
     volumes:
       - /mnt/mainpool/configs/cloudflared:/etc/cloudflared
     restart: unless-stopped
@@ -145,24 +147,49 @@ services:
     environment:
       - PUID=568
       - PGID=568
-      - TZ=
+      - TZ=Europe/Bucharest
     volumes:
       - /mnt/mainpool/configs/overseerr:/config
     ports:
-      - 5055:5055
+      - "5055:5055"
     restart: unless-stopped
 
   watchtower:
     image: nickfedor/watchtower
     container_name: watchtower
     environment:
-      TZ: ""
-      WATCHTOWER_NOTIFICATIONS_HOSTNAME: ""
+      TZ: Europe/Bucharest
+      WATCHTOWER_NOTIFICATIONS_HOSTNAME: truenas
       WATCHTOWER_CLEANUP: "true"
       WATCHTOWER_INCLUDE_STOPPED: "true"
-      WATCHTOWER_SCHEDULE: ""
+      WATCHTOWER_SCHEDULE: "0 0 11 * * 1"
       WATCHTOWER_DISABLE_CONTAINERS: "ix*"
-      WATCHTOWER_NOTIFICATION_URL: ""
+      WATCHTOWER_NOTIFICATION_URL: ${WATCHTOWER_NOTIFICATION_URL:-}
+    restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+
+  capacitarr:
+    image: ghcr.io/ghent/capacitarr:stable
+    container_name: capacitarr
+    environment:
+      - TZ=Europe/Bucharest
+      - PUID=568
+      - PGID=568
+      - JWT_SECRET=${CAPACITARR_JWT_SECRET:-}
     restart: unless-stopped
+    ports:
+      - "2187:2187"
+    volumes:
+      - /mnt/mainpool/configs/capacitarr:/config
+
+  # recyclarr:
+  #   image: ghcr.io/recyclarr/recyclarr
+  #   container_name: recyclarr
+  #   environment:
+  #     - PUID=568
+  #     - PGID=568
+  #     - TZ=Europe/Bucharest
+  #   volumes:
+  #     - /mnt/mainpool/configs/recyclarr:/config
+  #   restart: unless-stopped
