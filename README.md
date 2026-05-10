@@ -41,6 +41,13 @@ variable names.
 | [Proxmox VE Community Scripts](https://community-scripts.org/) | Community-maintained helper scripts for creating and configuring common Proxmox LXCs and VMs |
 | [Servers@Home Wiki](https://wiki.serversatho.me/) | Practical ideas and instructions for common Docker apps and TrueNAS Scale setups |
 
+## Useful Outside References
+
+| Resource | Why it is useful |
+|----------|------------------|
+| [Proxmox VE Community Scripts](https://community-scripts.org/) | Community-maintained helper scripts for creating and configuring common Proxmox LXCs and VMs |
+| [Servers@Home Wiki](https://wiki.serversatho.me/) | Practical ideas and instructions for common Docker apps and TrueNAS Scale setups |
+
 ## Current Status At A Glance
 
 | Area | Status | What to know first |
